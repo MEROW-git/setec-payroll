@@ -3,8 +3,10 @@ import { ArrowRight, Lock, Mail, ShieldCheck } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import EmployeeDashboard from './components/EmployeeDashboard';
+import EmployeesPage from './components/EmployeesPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
+import AddEmployeePage from './components/AddEmployeePage';
 
 type UserRole = 'admin' | 'employee';
 
@@ -127,6 +129,10 @@ function App() {
         ) : (
           <Dashboard onNavigate={navigateTo} />
         );
+      case 'employees':
+        return <EmployeesPage onNavigate={navigateTo} />;
+      case 'add-employee':
+        return <AddEmployeePage onNavigate={navigateTo} />;
       default:
         return (
           <div className="flex items-center justify-center h-full">
