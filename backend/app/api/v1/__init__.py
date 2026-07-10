@@ -1,0 +1,23 @@
+from flask import Blueprint
+
+from app.api.v1.attendance.routes import attendance_bp
+from app.api.v1.auth.routes import auth_bp
+from app.api.v1.dashboard.routes import dashboard_bp
+from app.api.v1.departments.routes import departments_bp
+from app.api.v1.employees.routes import employees_bp
+from app.api.v1.leave.routes import leave_bp
+from app.api.v1.payroll.routes import payroll_bp
+from app.api.v1.positions.routes import positions_bp
+from app.api.v1.uploads.routes import uploads_bp
+
+api_v1 = Blueprint("api_v1", __name__)
+
+api_v1.register_blueprint(auth_bp, url_prefix="/auth")
+api_v1.register_blueprint(employees_bp, url_prefix="/employees")
+api_v1.register_blueprint(departments_bp, url_prefix="/departments")
+api_v1.register_blueprint(positions_bp, url_prefix="/positions")
+api_v1.register_blueprint(attendance_bp, url_prefix="/attendance")
+api_v1.register_blueprint(leave_bp, url_prefix="/leave")
+api_v1.register_blueprint(payroll_bp, url_prefix="/payroll")
+api_v1.register_blueprint(dashboard_bp, url_prefix="/dashboard")
+api_v1.register_blueprint(uploads_bp, url_prefix="/uploads")

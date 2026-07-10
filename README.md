@@ -15,7 +15,7 @@ Human-Resource-Payroll/
 ```
 
 - `frontend/` contains the React, TypeScript, Vite, and Tailwind CSS application.
-- `backend/` is reserved for backend API code.
+- `backend/` contains the Flask, MySQL, SQLAlchemy, and Alembic API backend.
 
 ## Frontend Setup
 
