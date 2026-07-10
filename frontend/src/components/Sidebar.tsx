@@ -10,7 +10,9 @@ import {
   ClipboardCheck,
   Calendar,
   Shield,
-  Clock
+  Clock,
+  Wallet,
+  FileText
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
@@ -22,18 +24,30 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarProps) {
-  const navItems = [
+  const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'employees', label: 'Employees', icon: Users, hidden: userRole === 'employee' },
-    { id: 'roles', label: 'Roles', icon: Shield, hidden: userRole === 'employee' },
-    { id: 'departments', label: 'Departments', icon: Building2, hidden: userRole === 'employee' },
+    { id: 'employees', label: 'Employees', icon: Users },
+    { id: 'roles', label: 'Roles', icon: Shield },
+    { id: 'departments', label: 'Departments', icon: Building2 },
     { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
     { id: 'shift', label: 'Shift', icon: Clock },
     { id: 'leave', label: 'Leave Tracking', icon: Calendar },
     { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
-    { id: 'payroll', label: 'Payroll', icon: CreditCard, hidden: userRole === 'employee' },
-    { id: 'performance', label: 'Performance', icon: BarChart3, hidden: userRole === 'employee' },
+    { id: 'payroll', label: 'Payroll', icon: CreditCard },
+    { id: 'performance', label: 'Performance', icon: BarChart3 },
   ];
+
+  const employeeNavItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
+    { id: 'shift', label: 'Shift', icon: Clock },
+    { id: 'leave', label: 'Leave Tracking', icon: Calendar },
+    { id: 'allowance-deduction', label: 'Allowance & Deduction', icon: Wallet },
+    { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
+    { id: 'reports', label: 'Reports', icon: FileText },
+  ];
+
+  const navItems = userRole === 'employee' ? employeeNavItems : adminNavItems;
 
   return (
     <div className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col sticky top-0">
@@ -41,11 +55,11 @@ export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarPr
         <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
           SH
         </div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">HRM</h1>
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Siegecode HRM</h1>
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
-        {navItems.filter(item => !item.hidden).map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
 

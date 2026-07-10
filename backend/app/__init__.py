@@ -13,7 +13,13 @@ def create_app(config_name: str = "development") -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    cors.init_app(app)
+    cors.init_app(
+        app,
+        resources={
+            r"/api/*": {"origins": app.config["CORS_ORIGINS"]},
+            r"/health": {"origins": app.config["CORS_ORIGINS"]},
+        },
+    )
     bcrypt.init_app(app)
 
     app.register_blueprint(api_v1, url_prefix="/api/v1")

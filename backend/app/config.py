@@ -34,12 +34,18 @@ def engine_options() -> dict:
     return options
 
 
+def cors_origins() -> list[str]:
+    origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+    return [origin.strip() for origin in origins.split(",") if origin.strip()]
+
+
 class BaseConfig:
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me-too")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = database_url()
     SQLALCHEMY_ENGINE_OPTIONS = engine_options()
+    CORS_ORIGINS = cors_origins()
 
 
 class DevelopmentConfig(BaseConfig):

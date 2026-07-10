@@ -1,3 +1,121 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes loginOrbit {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+}
+
+@keyframes loginFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes loginCardFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-0.5deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(0.5deg);
+  }
+}
+
+@keyframes loginSpark {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.8);
+    opacity: 0;
+  }
+  20%, 70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(40px, -90px, 0) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes loginScan {
+  0%, 100% {
+    width: 4rem;
+    opacity: 0.9;
+  }
+  50% {
+    width: 8rem;
+    opacity: 1;
+  }
+}
+
+@keyframes loginIconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+.login-orbit {
+  animation: loginOrbit 7s ease-in-out infinite;
+}
+
+.login-orbit-fast {
+  animation-duration: 5.5s;
+}
+
+.login-orbit-slow {
+  animation-duration: 8.5s;
+}
+
+.login-float {
+  animation: loginFloat 4.5s ease-in-out infinite;
+}
+
+.login-card-float {
+  animation: loginCardFloat 5.5s ease-in-out infinite;
+}
+
+.login-icon-pulse {
+  animation: loginIconPulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.login-scan {
+  animation: loginScan 2.8s ease-in-out infinite;
+}
+
+.login-spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.65);
+  animation: loginSpark 5s ease-in-out infinite;
+}
+
+.login-spark-one {
+  left: 18%;
+  top: 31%;
+}
+
+.login-spark-two {
+  left: 68%;
+  top: 27%;
+  animation-delay: 1.3s;
+}
+
+.login-spark-three {
+  left: 60%;
+  top: 63%;
+  animation-delay: 2.4s;
+}
