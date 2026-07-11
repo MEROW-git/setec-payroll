@@ -213,6 +213,11 @@ export type LeaveDashboard = { items:LeaveRequestItem[];stats:{pending:number;ap
 export type LeaveTypeItem = {id:number;name:string;code:string;days_per_year:number;is_paid:boolean;count_type:string;special_types:string[]};
 export type AdjustmentItem={id:number;employee_id:number;employee_name:string;employee_code:string;adjustment_type:'allowance'|'deduction';category:string;amount:number;date:string;status:string};
 export type AdjustmentResult={items:AdjustmentItem[];stats:{allowances:number;deductions:number;net:number};month:string};
+export type EventItem={id:number;title:string;event_type_id:number;event_type:string;color:string;date:string;start_time:string|null;end_time:string|null;is_all_day:boolean;location:string;audience:string;description:string|null;status:string};
+export type NoticeItem={id:number;title:string;content:string;priority:string;date:string|null;status:string;audience:string};
+export type EventTypeItem={id:number;name:string;color:string};
+export type PayrollRow={id:number;employee_id:number;employee_name:string;employee_code:string;month:string;basic_salary:number;bonus:number;deductions:number;net_pay:number;status:string};
+export type PayrollDashboard={items:PayrollRow[];stats:{total:number;processed:number;employees:number;pending:number;next_pay_date:string|null}};
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
@@ -370,3 +375,18 @@ export function getLeaveConfig<T=Record<string,unknown>>(kind:string){return req
 export function createLeaveConfig<T=Record<string,unknown>>(kind:string,payload:Record<string,unknown>){return request<T>(`/api/v1/leave/config/${kind}`,{method:'POST',body:JSON.stringify(payload)});}
 export function getAdjustments(params:{month:string;search?:string;type?:string;status?:string}){const query=new URLSearchParams(params).toString();return request<AdjustmentResult>(`/api/v1/adjustments/?${query}`);}
 export function createAdjustment(payload:{employee_id:number;adjustment_type:string;date:string;amount:number;status:string;category:string}){return request<AdjustmentItem>('/api/v1/adjustments/',{method:'POST',body:JSON.stringify(payload)});}
+export function getEvents(search=''){const query=search?`?search=${encodeURIComponent(search)}`:'';return request<EventItem[]>(`/api/v1/events/${query}`);}
+export function createEvent(payload:Record<string,unknown>){return request<EventItem>('/api/v1/events/',{method:'POST',body:JSON.stringify(payload)});}
+export function getNotices(search=''){const query=search?`?search=${encodeURIComponent(search)}`:'';return request<NoticeItem[]>(`/api/v1/events/notices${query}`);}
+export function createNotice(payload:Record<string,unknown>){return request<NoticeItem>('/api/v1/events/notices',{method:'POST',body:JSON.stringify(payload)});}
+export function getEventTypes(){return request<EventTypeItem[]>('/api/v1/events/types');}
+export function createEventType(name:string){return request<EventTypeItem>('/api/v1/events/types',{method:'POST',body:JSON.stringify({name})});}
+export function getPayroll(search=''){const query=search?`?search=${encodeURIComponent(search)}`:'';return request<PayrollDashboard>(`/api/v1/payroll/${query}`);}
+export function getPayrollEligible(){return request<{count:number}>('/api/v1/payroll/eligible');}
+export function runPayroll(month:string){return request<{period_id:number;employees:number}>('/api/v1/payroll/run',{method:'POST',body:JSON.stringify({month})});}
+export function getPayrollConfig<T=Record<string,unknown>>(kind:string){return request<T[]>(`/api/v1/payroll/config/${kind}`);}
+export function createPayrollConfig<T=Record<string,unknown>>(kind:string,payload:Record<string,unknown>){return request<T>(`/api/v1/payroll/config/${kind}`,{method:'POST',body:JSON.stringify(payload)});}
+export function getPayrollSummary(){return request<{components:number;taxes:number;next_pay_date:string|null}>('/api/v1/payroll/settings/summary');}
+export function getSalaryList(search=''){const query=search?`?search=${encodeURIComponent(search)}`:'';return request<Array<{id:number;name:string;employee_code:string;department:string|null;base_salary:number;net_salary:number|null;last_paid:string|null}>>(`/api/v1/payroll/salary-list${query}`);}
+export function getPayrollSetting(key:'bank'|'payslip'){return request<Record<string,unknown>>(`/api/v1/payroll/settings/${key}`);}
+export function savePayrollSetting(key:'bank'|'payslip',value:Record<string,unknown>){return request<Record<string,unknown>>(`/api/v1/payroll/settings/${key}`,{method:'PUT',body:JSON.stringify(value)});}

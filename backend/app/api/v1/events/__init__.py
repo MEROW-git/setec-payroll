@@ -1,0 +1,1 @@
+"""Events and notices API."""

@@ -16,6 +16,12 @@ import LeavePage from './components/LeavePage';
 import LeaveSettingsPage from './components/LeaveSettingsPage';
 import LeaveConfigPage from './components/LeaveConfigPage';
 import AdjustmentsPage from './components/AdjustmentsPage';
+import EventsPage from './components/EventsPage';
+import CreateSchedulePage from './components/CreateSchedulePage';
+import PayrollPage from './components/PayrollPage';
+import PayrollSettingsPage from './components/PayrollSettingsPage';
+import PayrollConfigPage from './components/PayrollConfigPage';
+import PayrollUtilityPage from './components/PayrollUtilityPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -172,7 +178,24 @@ function App() {
         return <LeaveSettingsPage onNavigate={navigateTo} />;
       case 'allowance-deduction':
         return <AdjustmentsPage />;
+      case 'events-schedule':
+        return <EventsPage onNavigate={navigateTo} />;
+      case 'events-schedule/new-event':
+        return <CreateSchedulePage mode="event" onNavigate={navigateTo} />;
+      case 'events-schedule/new-notice':
+        return <CreateSchedulePage mode="notice" onNavigate={navigateTo} />;
+      case 'payroll':
+        return <PayrollPage onNavigate={navigateTo} />;
+      case 'payroll/settings':
+        return <PayrollSettingsPage onNavigate={navigateTo} />;
       default:
+        if (activeTab.startsWith('payroll/settings/')) {
+          const kind = activeTab.split('/')[2];
+          if (kind === 'bank' || kind === 'payslip' || kind === 'salary-list') {
+            return <PayrollUtilityPage mode={kind} onNavigate={navigateTo} />;
+          }
+          return <PayrollConfigPage kind={kind} onNavigate={navigateTo} />;
+        }
         if (activeTab.startsWith('leave/settings/')) {
           return <LeaveConfigPage kind={activeTab.split('/')[2]} onNavigate={navigateTo} />;
         }

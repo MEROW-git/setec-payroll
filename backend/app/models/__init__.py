@@ -7,6 +7,7 @@ from app.models.department import Department
 from app.models.employee import Employee
 from app.models.employee_document import EmployeeDocument
 from app.models.employee_salary_component import EmployeeSalaryComponent
+from app.models.event import Event, EventType
 from app.models.holiday import Holiday
 from app.models.job_opening import JobOpening
 from app.models.leave_request import LeaveRequest
@@ -14,6 +15,7 @@ from app.models.leave_configuration import LeaveGroup, LeavePolicy, LeaveYear
 from app.models.leave_type import LeaveType
 from app.models.payroll import Payroll
 from app.models.payroll_period import PayrollPeriod
+from app.models.payroll_configuration import PayrollCycle,PayrollPolicy,PayrollSetting,TaxRule
 from app.models.performance_review import PerformanceReview
 from app.models.position import Position
 from app.models.role import Role
@@ -31,6 +33,8 @@ __all__ = [
     "Employee",
     "EmployeeDocument",
     "EmployeeSalaryComponent",
+    "Event",
+    "EventType",
     "Holiday",
     "JobOpening",
     "LeaveRequest",
@@ -40,6 +44,10 @@ __all__ = [
     "LeaveType",
     "Payroll",
     "PayrollPeriod",
+    "PayrollCycle",
+    "PayrollPolicy",
+    "PayrollSetting",
+    "TaxRule",
     "PerformanceReview",
     "Position",
     "Role",

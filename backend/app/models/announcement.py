@@ -19,6 +19,7 @@ class Announcement(BaseModel, SoftDeleteMixin):
     published_at = db.Column(db.DateTime)
     expires_at = db.Column(db.DateTime)
     status = db.Column(db.String(30), default="draft", nullable=False)
+    priority = db.Column(db.String(20), default="medium", nullable=False)
 
     department = db.relationship("Department", back_populates="announcements")
     publisher = db.relationship("User", back_populates="announcements")

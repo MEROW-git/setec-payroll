@@ -18,5 +18,6 @@ class SalaryComponent(BaseModel, SoftDeleteMixin):
     default_amount = db.Column(db.Numeric(12, 2), default=0, nullable=False)
     is_taxable = db.Column(db.Boolean, default=False, nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    description = db.Column(db.Text)
 
     employee_components = db.relationship("EmployeeSalaryComponent", back_populates="salary_component")
