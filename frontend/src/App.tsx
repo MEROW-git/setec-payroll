@@ -22,6 +22,7 @@ import PayrollPage from './components/PayrollPage';
 import PayrollSettingsPage from './components/PayrollSettingsPage';
 import PayrollConfigPage from './components/PayrollConfigPage';
 import PayrollUtilityPage from './components/PayrollUtilityPage';
+import ReportsPage from './components/ReportsPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -188,6 +189,8 @@ function App() {
         return <PayrollPage onNavigate={navigateTo} />;
       case 'payroll/settings':
         return <PayrollSettingsPage onNavigate={navigateTo} />;
+      case 'reports':
+        return <ReportsPage />;
       default:
         if (activeTab.startsWith('payroll/settings/')) {
           const kind = activeTab.split('/')[2];
