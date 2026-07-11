@@ -1,0 +1,1 @@
+def entry_data(item):return{"id":item.id,"employee_id":item.employee_id,"employee_name":f"{item.employee.first_name} {item.employee.last_name}".strip(),"employee_code":item.employee.employee_code,"adjustment_type":item.salary_component.component_type,"category":item.salary_component.name,"amount":float(item.amount),"date":item.effective_date.isoformat(),"status":item.status}

@@ -23,6 +23,9 @@ class EmployeeSalaryComponent(BaseModel, SoftDeleteMixin):
     effective_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    status = db.Column(db.String(20), default="approved", nullable=False)
+    created_by = db.Column(UnsignedBigInteger, db.ForeignKey("users.id", ondelete="SET NULL"))
 
     employee = db.relationship("Employee", back_populates="salary_components")
     salary_component = db.relationship("SalaryComponent", back_populates="employee_components")
+    creator = db.relationship("User")

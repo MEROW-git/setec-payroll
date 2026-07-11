@@ -211,6 +211,8 @@ export type ShiftRequestsResult = { items: ShiftRequestItem[]; pending_count: nu
 export type LeaveRequestItem = { id:number;employee_id:number;employee_name:string;leave_type_id:number;leave_type:string;start_date:string;end_date:string;total_days:number;reason:string|null;status:string;reviewer_note:string|null };
 export type LeaveDashboard = { items:LeaveRequestItem[];stats:{pending:number;approved:number;rejected:number;on_leave_today:number} };
 export type LeaveTypeItem = {id:number;name:string;code:string;days_per_year:number;is_paid:boolean;count_type:string;special_types:string[]};
+export type AdjustmentItem={id:number;employee_id:number;employee_name:string;employee_code:string;adjustment_type:'allowance'|'deduction';category:string;amount:number;date:string;status:string};
+export type AdjustmentResult={items:AdjustmentItem[];stats:{allowances:number;deductions:number;net:number};month:string};
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
@@ -366,3 +368,5 @@ export function reviewLeaveRequest(id:number,status:'approved'|'rejected'){retur
 export function getLeaveSettingsSummary(){return request<{active_policies:number;upcoming_holidays:number;pending_adjustments:number}>('/api/v1/leave/settings/summary');}
 export function getLeaveConfig<T=Record<string,unknown>>(kind:string){return request<T[]>(`/api/v1/leave/config/${kind}`);}
 export function createLeaveConfig<T=Record<string,unknown>>(kind:string,payload:Record<string,unknown>){return request<T>(`/api/v1/leave/config/${kind}`,{method:'POST',body:JSON.stringify(payload)});}
+export function getAdjustments(params:{month:string;search?:string;type?:string;status?:string}){const query=new URLSearchParams(params).toString();return request<AdjustmentResult>(`/api/v1/adjustments/?${query}`);}
+export function createAdjustment(payload:{employee_id:number;adjustment_type:string;date:string;amount:number;status:string;category:string}){return request<AdjustmentItem>('/api/v1/adjustments/',{method:'POST',body:JSON.stringify(payload)});}
