@@ -26,6 +26,7 @@ import ReportsPage from './components/ReportsPage';
 import PerformancePage from './components/PerformancePage';
 import SettingsPage from './components/SettingsPage';
 import ProfileStatusPage from './components/ProfileStatusPage';
+import ProfileDetailPage from './components/ProfileDetailPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -151,6 +152,9 @@ function App() {
   };
 
   const renderContent = () => {
+    if (activeTab.startsWith('profile/') && activeTab !== 'profile/status') {
+      return <ProfileDetailPage section={activeTab.split('/')[1]} onNavigate={navigateTo} />;
+    }
     if (activeTab === 'departments/new') {
       return <CreateDepartmentPage onNavigate={navigateTo} />;
     }

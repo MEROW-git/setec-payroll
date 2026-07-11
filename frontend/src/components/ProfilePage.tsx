@@ -22,18 +22,18 @@ type ProfilePageProps = {
 };
 
 const quickActions = [
-  { label: 'Employee Info', icon: User, color: 'bg-blue-500' },
+  { label: 'Employee Info', icon: User, color: 'bg-blue-500', path: 'profile/information' },
   { label: 'Status', icon: HeartPulse, color: 'bg-emerald-500', path: 'profile/status' },
-  { label: 'Bank Info', icon: CreditCard, color: 'bg-violet-500' },
-  { label: 'Family', icon: Users, color: 'bg-pink-500' },
-  { label: 'Education', icon: GraduationCap, color: 'bg-indigo-500' },
-  { label: 'Employment', icon: Briefcase, color: 'bg-orange-500' },
-  { label: 'Contact', icon: Contact, color: 'bg-teal-500' },
-  { label: 'Supervisor', icon: User, color: 'bg-sky-500' },
-  { label: 'Document & Passport', icon: FileText, color: 'bg-rose-500' },
-  { label: 'Payroll', icon: CreditCard, color: 'bg-green-600' },
-  { label: 'Performance', icon: Star, color: 'bg-indigo-600' },
-  { label: 'Security', icon: Shield, color: 'bg-slate-900' },
+  { label: 'Bank Info', icon: CreditCard, color: 'bg-violet-500', path: 'profile/bank' },
+  { label: 'Family', icon: Users, color: 'bg-pink-500', path: 'profile/family' },
+  { label: 'Education', icon: GraduationCap, color: 'bg-indigo-500', path: 'profile/education' },
+  { label: 'Employment', icon: Briefcase, color: 'bg-orange-500', path: 'profile/employment' },
+  { label: 'Contact', icon: Contact, color: 'bg-teal-500', path: 'profile/contact' },
+  { label: 'Supervisor', icon: User, color: 'bg-sky-500', path: 'profile/supervisor' },
+  { label: 'Document & Passport', icon: FileText, color: 'bg-rose-500', path: 'profile/documents' },
+  { label: 'Payroll', icon: CreditCard, color: 'bg-green-600', path: 'profile/payroll' },
+  { label: 'Performance', icon: Star, color: 'bg-indigo-600', path: 'profile/performance' },
+  { label: 'Security', icon: Shield, color: 'bg-slate-900', path: 'settings' },
 ];
 
 function initialsFor(name: string) {
@@ -132,8 +132,7 @@ export default function ProfilePage({ user, onNavigate }: ProfilePageProps) {
               <button
                 key={action.label}
                 onClick={()=>action.path&&onNavigate(action.path)}
-                disabled={!action.path}
-                title={action.path?`Open ${action.label}`:`${action.label} details are not connected yet`}
+                title={`Open ${action.label}`}
                 className="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white p-4 transition hover:-translate-y-1 hover:border-indigo-100 hover:shadow-md"
               >
                 <div className={cn('mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-white', action.color)}>
