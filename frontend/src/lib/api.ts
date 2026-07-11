@@ -396,3 +396,9 @@ export type PerformanceReviewItem={id:number;employee_id:number;employee_name:st
 export type PerformanceDashboard={items:PerformanceReviewItem[];stats:{average_score:number;completed:number;drafts:number;employees_reviewed:number};departments:Array<{name:string;average_score:number;review_count:number}>};
 export function getPerformance(search=''){const query=search?`?search=${encodeURIComponent(search)}`:'';return request<PerformanceDashboard>(`/api/v1/performance/${query}`);}
 export function createPerformanceReview(payload:{employee_id:number;reviewer_id:number;review_date:string;period_start:string;period_end:string;score:number;strengths?:string;improvements?:string;comments?:string;status:'draft'|'completed'}){return request<PerformanceReviewItem>('/api/v1/performance/',{method:'POST',body:JSON.stringify(payload)});}
+export type UserSettings={profile:{name:string;email:string;phone:string|null;job_title:string|null;role:string|null};appearance:{theme:'light'|'dark'|'system';density:'comfortable'|'compact'};notifications:{email:boolean;push:boolean;leave:boolean;payroll:boolean}};
+export function getUserSettings(){return request<UserSettings>('/api/v1/settings/');}
+export function updateUserProfile(payload:{name:string;email:string;phone:string}){return request<UserSettings>('/api/v1/settings/profile',{method:'PUT',body:JSON.stringify(payload)});}
+export function updateAppearance(payload:UserSettings['appearance']){return request<UserSettings>('/api/v1/settings/appearance',{method:'PUT',body:JSON.stringify(payload)});}
+export function updateNotificationPreferences(payload:UserSettings['notifications']){return request<UserSettings>('/api/v1/settings/notifications',{method:'PUT',body:JSON.stringify(payload)});}
+export function changePassword(payload:{current_password:string;new_password:string;confirm_password:string}){return request<null>('/api/v1/settings/password',{method:'PUT',body:JSON.stringify(payload)});}

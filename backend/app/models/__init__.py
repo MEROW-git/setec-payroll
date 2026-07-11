@@ -22,6 +22,7 @@ from app.models.role import Role
 from app.models.salary_component import SalaryComponent
 from app.models.shift import EmployeeShiftAssignment, Shift, ShiftRequest
 from app.models.user import User
+from app.models.user_preference import UserPreference
 
 __all__ = [
     "Announcement",
@@ -56,4 +57,5 @@ __all__ = [
     "ShiftRequest",
     "EmployeeShiftAssignment",
     "User",
+    "UserPreference",
 ]

@@ -36,3 +36,4 @@ class User(BaseModel, SoftDeleteMixin):
     announcements = db.relationship("Announcement", back_populates="publisher")
     job_openings = db.relationship("JobOpening", back_populates="creator")
     audit_logs = db.relationship("AuditLog", back_populates="user")
+    preference = db.relationship("UserPreference", back_populates="user", uselist=False, cascade="all, delete-orphan")

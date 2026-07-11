@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+html[data-density="compact"] main { padding: 1rem; }
+html[data-density="compact"] table th,
+html[data-density="compact"] table td { padding-top: .65rem !important; padding-bottom: .65rem !important; }
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root { background: #0f172a; color: #e2e8f0; }
+html[data-theme="dark"] .bg-slate-50 { background-color: #0f172a !important; }
+html[data-theme="dark"] .bg-white { background-color: #172033 !important; }
+html[data-theme="dark"] .bg-slate-100 { background-color: #202b3f !important; }
+html[data-theme="dark"] .text-slate-900,
+html[data-theme="dark"] .text-slate-950 { color: #f8fafc !important; }
+html[data-theme="dark"] .text-slate-600,
+html[data-theme="dark"] .text-slate-700,
+html[data-theme="dark"] .text-slate-800 { color: #cbd5e1 !important; }
+html[data-theme="dark"] .text-slate-500 { color: #94a3b8 !important; }
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-r,
+html[data-theme="dark"] .border-t,
+html[data-theme="dark"] .border-b { border-color: #334155 !important; }
+
 @keyframes loginOrbit {
   0%, 100% {
     transform: scale(0.96);

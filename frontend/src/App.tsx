@@ -24,6 +24,7 @@ import PayrollConfigPage from './components/PayrollConfigPage';
 import PayrollUtilityPage from './components/PayrollUtilityPage';
 import ReportsPage from './components/ReportsPage';
 import PerformancePage from './components/PerformancePage';
+import SettingsPage from './components/SettingsPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -55,6 +56,15 @@ function App() {
   const userRole = roleFromUser(authUser);
 
   useEffect(() => {
+    try {
+      const appearance = JSON.parse(localStorage.getItem('appearance') ?? '{}');
+      const dark = appearance.theme === 'dark' || (appearance.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      document.documentElement.dataset.density = appearance.density === 'compact' ? 'compact' : 'comfortable';
+    } catch {
+      document.documentElement.dataset.theme = 'light';
+    }
+
     const verifySession = async () => {
       const savedToken = localStorage.getItem('access_token');
 
@@ -194,6 +204,8 @@ function App() {
         return <ReportsPage />;
       case 'performance':
         return <PerformancePage />;
+      case 'settings':
+        return <SettingsPage user={authUser} onUserUpdated={(user)=>{setAuthUser(user);localStorage.setItem('auth_user',JSON.stringify(user));}} />;
       default:
         if (activeTab.startsWith('payroll/settings/')) {
           const kind = activeTab.split('/')[2];
