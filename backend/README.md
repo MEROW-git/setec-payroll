@@ -80,7 +80,7 @@ Make sure these values are set in `.env`:
 ADMIN_NAME=Super Admin
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=AdminPassword123!
-EMPLOYEE_NAME=Demo Employee
+EMPLOYEE_NAME=Sok Dara
 EMPLOYEE_EMAIL=employee@example.com
 EMPLOYEE_PASSWORD=EmployeePassword123!
 ```
@@ -90,6 +90,16 @@ Then run:
 ```bash
 python scripts/seed.py
 ```
+
+Create a populated Cambodia demo environment covering January 1 through July 10, 2026:
+
+```bash
+python scripts/seed_demo.py
+```
+
+The demo seed is deterministic and idempotent. It creates Cambodian employees, departments,
+positions, shifts, weekday attendance, leave requests, payroll history, adjustments,
+performance reviews, public holidays, and company events without duplicating records.
 
 The seed script creates:
 

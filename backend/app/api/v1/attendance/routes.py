@@ -4,12 +4,34 @@ from datetime import date
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 
-from app.api.v1.attendance.service import create_policy_record, create_record, get_matrix, get_policies, get_raw_punches, get_records
+from app.api.v1.attendance.service import create_policy_record, create_record, get_matrix, get_my_records, get_policies, get_raw_punches, get_records, remote_clock
 from app.api.v1.attendance.validators import validate_create_attendance, validate_policy, validate_record_query
 from app.common.decorators import roles_required
 from app.common.responses import error_response, success_response
 
 attendance_bp = Blueprint("attendance", __name__)
+
+
+@attendance_bp.get("/me")
+@roles_required("Employee")
+def my_records():
+    validation = validate_record_query(request.args)
+    if not validation["is_valid"]:
+        return error_response("Invalid attendance query.", 422, validation["errors"])
+    data, errors = get_my_records(int(get_jwt_identity()), validation["data"]["start_date"], validation["data"]["end_date"])
+    if errors:
+        return error_response("Unable to load your attendance.", 409, errors)
+    return success_response(data, "Your attendance records loaded")
+
+
+@attendance_bp.post("/me/clock")
+@roles_required("Employee")
+def clock_remote():
+    action = str((request.get_json(silent=True) or {}).get("action") or "").strip().lower()
+    record, errors = remote_clock(int(get_jwt_identity()), action)
+    if errors:
+        return error_response("Unable to update remote attendance.", 409, errors)
+    return success_response(record, f"Remote clock {action} recorded")
 
 
 @attendance_bp.get("/records")

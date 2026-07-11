@@ -177,6 +177,11 @@ export type AttendanceRecordsResult = {
   stats: Record<'present' | 'late' | 'absent' | 'remote' | 'on_leave', number>;
 };
 
+export type MyAttendanceResult = AttendanceRecordsResult & {
+  employee: { id: number; name: string; employee_code: string };
+  today: AttendanceRecord | null;
+};
+
 export type AttendanceMatrixEmployee = {
   id: number;
   employee_code: string;
@@ -334,6 +339,15 @@ export function getNotifications() {
 export function getAttendanceRecords(params: { start_date: string; end_date: string; search?: string }) {
   const query = new URLSearchParams(params).toString();
   return request<AttendanceRecordsResult>(`/api/v1/attendance/records?${query}`);
+}
+
+export function getMyAttendance(params: { start_date: string; end_date: string }) {
+  const query = new URLSearchParams(params).toString();
+  return request<MyAttendanceResult>(`/api/v1/attendance/me?${query}`);
+}
+
+export function remoteClock(action: 'in' | 'out') {
+  return request<AttendanceRecord>('/api/v1/attendance/me/clock', { method: 'POST', body: JSON.stringify({ action }) });
 }
 
 export function getAttendanceMatrix(month: string, search = '') {

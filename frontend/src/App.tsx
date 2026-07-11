@@ -10,6 +10,7 @@ import DepartmentsPage from './components/DepartmentsPage';
 import CreateRolePage from './components/CreateRolePage';
 import CreateDepartmentPage from './components/CreateDepartmentPage';
 import AttendancePage from './components/AttendancePage';
+import EmployeeAttendancePage from './components/EmployeeAttendancePage';
 import AttendancePolicyPage from './components/AttendancePolicyPage';
 import ShiftPage from './components/ShiftPage';
 import LeavePage from './components/LeavePage';
@@ -185,7 +186,7 @@ function App() {
       case 'roles/new':
         return <CreateRolePage onNavigate={navigateTo} />;
       case 'attendance':
-        return <AttendancePage onNavigate={navigateTo} />;
+        return userRole === 'employee' ? <EmployeeAttendancePage /> : <AttendancePage onNavigate={navigateTo} />;
       case 'attendance/policy':
         return <AttendancePolicyPage onNavigate={navigateTo} />;
       case 'shift':
