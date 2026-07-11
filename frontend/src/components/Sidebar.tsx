@@ -61,7 +61,7 @@ export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarPr
       <nav className="flex-1 px-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = activeTab === item.id || activeTab.startsWith(`${item.id}/`);
 
           return (
             <button

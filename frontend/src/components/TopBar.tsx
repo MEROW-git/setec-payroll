@@ -1,7 +1,7 @@
 import { Bell, Calendar, CheckCircle2, ChevronDown, Clock, Info, LogOut, Search, Settings, User, UserPlus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AuthUser } from '../lib/api';
+import { AuthUser, NotificationItem, getNotifications } from '../lib/api';
 import { cn } from '../lib/utils';
 
 type TopBarProps = {
@@ -20,56 +20,33 @@ function initialsFor(name: string) {
     .toUpperCase();
 }
 
-const notifications = [
-  {
-    title: 'Leave Request Approved',
-    message: 'Your annual leave request for April 15-20 has been approved by Sarah Chen.',
-    time: '2 hours ago',
-    unread: true,
-    icon: CheckCircle2,
-    color: 'text-emerald-500',
-  },
-  {
-    title: 'New Team Member',
-    message: 'Michael Scott has joined the Sales department as Regional Manager.',
-    time: '5 hours ago',
-    unread: true,
-    icon: UserPlus,
-    color: 'text-indigo-500',
-  },
-  {
-    title: 'Upcoming Event',
-    message: 'Quarterly Team Building is scheduled for next Friday at 2:00 PM.',
-    time: '1 day ago',
-    unread: false,
-    icon: Calendar,
-    color: 'text-orange-500',
-  },
-  {
-    title: 'Attendance Reminder',
-    message: 'Please remember to clock out for your lunch break.',
-    time: '2 days ago',
-    unread: false,
-    icon: Clock,
-    color: 'text-rose-500',
-  },
-  {
-    title: 'Policy Update',
-    message: 'The Remote Work Policy has been updated. Please review the changes.',
-    time: '3 days ago',
-    unread: false,
-    icon: Info,
-    color: 'text-slate-500',
-  },
-];
+function notificationIcon(type: string) {
+  if (type === 'announcement') return { icon: Calendar, color: 'text-orange-500' };
+  if (type === 'audit') return { icon: Info, color: 'text-slate-500' };
+  if (type === 'employee') return { icon: UserPlus, color: 'text-indigo-500' };
+  return { icon: CheckCircle2, color: 'text-emerald-500' };
+}
 
 export default function TopBar({ user, userRole, onNavigate, onLogout }: TopBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const displayName = user?.name ?? (userRole === 'employee' ? 'Employee User' : 'Admin User');
   const initials = initialsFor(displayName) || (userRole === 'employee' ? 'EM' : 'AD');
   const title = userRole === 'employee' ? 'Product Designer' : user?.role ?? 'HR Director';
-  const unreadCount = notifications.filter((notification) => notification.unread).length;
+
+  useEffect(() => {
+    getNotifications()
+      .then((result) => {
+        setNotifications(result.items);
+        setUnreadCount(result.unread_count);
+      })
+      .catch(() => {
+        setNotifications([]);
+        setUnreadCount(0);
+      });
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 bg-white px-8">
@@ -193,8 +170,13 @@ export default function TopBar({ user, userRole, onNavigate, onLogout }: TopBarP
               </div>
 
               <div className="flex-1 space-y-4 overflow-y-auto p-6">
+                {notifications.length === 0 && (
+                  <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm font-semibold text-slate-400">
+                    No notifications yet.
+                  </div>
+                )}
                 {notifications.map((notification, index) => {
-                  const Icon = notification.icon;
+                  const { icon: Icon, color } = notificationIcon(notification.type);
                   return (
                     <motion.article
                       key={notification.title}
@@ -206,14 +188,14 @@ export default function TopBar({ user, userRole, onNavigate, onLogout }: TopBarP
                       {notification.unread && <span className="absolute right-5 top-5 h-2 w-2 rounded-full bg-indigo-600" />}
                       <div className="flex gap-4">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-50">
-                          <Icon className={cn('h-5 w-5', notification.color)} />
+                          <Icon className={cn('h-5 w-5', color)} />
                         </div>
                         <div>
                           <h3 className="font-bold text-slate-950">{notification.title}</h3>
                           <p className="mt-2 leading-6 text-slate-500">{notification.message}</p>
                           <div className="mt-3 flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
                             <Clock className="h-3.5 w-3.5" />
-                            {notification.time}
+                            {notification.time ?? '-'}
                           </div>
                         </div>
                       </div>

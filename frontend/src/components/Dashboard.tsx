@@ -9,6 +9,7 @@ import {
   Clock,
   CheckCircle2
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { 
   LineChart, 
   Line, 
@@ -22,25 +23,8 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import { MOCK_EMPLOYEES, MOCK_LEAVE_REQUESTS } from '../mockData';
+import { DashboardStats, getDashboardStats } from '../lib/api';
 import { cn } from '../lib/utils';
-
-const attendanceData = [
-  { name: 'Jan', present: 85, absent: 8, onLeave: 7 },
-  { name: 'Feb', present: 88, absent: 7, onLeave: 5 },
-  { name: 'Mar', present: 82, absent: 10, onLeave: 8 },
-  { name: 'Apr', present: 90, absent: 5, onLeave: 5 },
-  { name: 'May', present: 87, absent: 7, onLeave: 6 },
-  { name: 'Jun', present: 92, absent: 4, onLeave: 4 },
-];
-
-const departmentData = [
-  { name: 'Engineering', value: 35, color: '#0ea5e9' },
-  { name: 'Marketing', value: 20, color: '#10b981' },
-  { name: 'Sales', value: 25, color: '#f59e0b' },
-  { name: 'HR', value: 10, color: '#8b5cf6' },
-  { name: 'Design', value: 10, color: '#ec4899' },
-];
 
 const StatCard = ({ title, value, change, icon: Icon, trend, iconBg, iconColor }: any) => (
   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -76,6 +60,24 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
+  const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    getDashboardStats()
+      .then(setDashboard)
+      .catch((requestError) => setError(requestError instanceof Error ? requestError.message : 'Unable to load dashboard.'));
+  }, []);
+
+  const stats = dashboard?.stats ?? {
+    totalEmployees: 0,
+    presentToday: 0,
+    onLeave: 0,
+    pendingRequests: 0,
+  };
+  const attendanceData = dashboard?.attendanceTrend ?? [];
+  const departmentData = dashboard?.departmentDistribution ?? [];
+
   return (
     <div className="space-y-8">
       <div>
@@ -83,12 +85,18 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <p className="text-slate-500 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          {error}
+        </div>
+      )}
+
       {/* Row 1: Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Total Employees" 
-          value="248" 
-          change="12%" 
+          value={stats.totalEmployees} 
+          change="0%" 
           icon={Users} 
           trend="up"
           iconBg="bg-blue-500"
@@ -96,8 +104,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         />
         <StatCard 
           title="Present Today" 
-          value="234" 
-          change="5%" 
+          value={stats.presentToday} 
+          change="0%" 
           icon={CheckCircle2} 
           trend="up"
           iconBg="bg-emerald-500"
@@ -105,8 +113,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         />
         <StatCard 
           title="On Leave" 
-          value="8" 
-          change="2%" 
+          value={stats.onLeave} 
+          change="0%" 
           icon={Calendar} 
           trend="down"
           iconBg="bg-orange-500"
@@ -114,8 +122,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         />
         <StatCard 
           title="Pending Requests" 
-          value="14" 
-          change="3%" 
+          value={stats.pendingRequests} 
+          change="0%" 
           icon={Clock} 
           trend="up"
           iconBg="bg-purple-500"
@@ -128,6 +136,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Attendance Trends</h3>
           <div className="h-[300px] w-full">
+            {attendanceData.length === 0 ? (
+              <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-400">
+                No attendance trend data yet.
+              </div>
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={attendanceData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -152,12 +165,18 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 <Line type="monotone" dataKey="onLeave" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name="On Leave" />
               </LineChart>
             </ResponsiveContainer>
+            )}
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Department Distribution</h3>
           <div className="h-[300px] w-full">
+            {departmentData.length === 0 ? (
+              <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-400">
+                No department data yet.
+              </div>
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -178,6 +197,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
@@ -212,22 +232,19 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Recent Activity</h3>
           <div className="space-y-6">
-            {[
-              { user: 'Sarah Johnson', action: 'submitted a leave request for Dec 28-30', time: '2 hours ago', icon: FileCheck, color: 'text-orange-500' },
-              { user: 'Alex Thompson', action: 'was added to Engineering department', time: '5 hours ago', icon: UserPlus, color: 'text-emerald-500' },
-              { user: 'Michael Chen', action: 'marked attendance at 9:15 AM', time: '7 hours ago', icon: ClipboardCheck, color: 'text-blue-500' },
-              { user: 'Emily Rodriguez', action: 'leave request was approved', time: '1 day ago', icon: FileCheck, color: 'text-orange-500' },
-              { user: 'James Wilson', action: 'updated profile information', time: '2 days ago', icon: Clock, color: 'text-slate-400' },
-            ].map((activity, i) => (
+            {(dashboard?.recentActivity ?? []).length === 0 && (
+              <p className="text-sm font-semibold text-slate-400">No recent activity yet.</p>
+            )}
+            {(dashboard?.recentActivity ?? []).map((activity, i) => (
               <div key={i} className="flex gap-4">
-                <div className={cn("mt-1", activity.color)}>
-                  <activity.icon className="w-4 h-4" />
+                <div className="mt-1 text-slate-400">
+                  <Clock className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-600">
                     <span className="font-bold text-slate-900">{activity.user}</span> {activity.action}
                   </p>
-                  <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
+                  <p className="text-xs text-slate-400 mt-1">{activity.time ?? '-'}</p>
                 </div>
               </div>
             ))}
@@ -242,7 +259,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </button>
           </div>
           <div className="space-y-4">
-            {MOCK_LEAVE_REQUESTS.slice(0, 3).map((request) => (
+            {(dashboard?.leaveRequests ?? []).length === 0 && (
+              <p className="text-sm font-semibold text-slate-400">No leave requests yet.</p>
+            )}
+            {(dashboard?.leaveRequests ?? []).map((request) => (
               <div key={request.id} className="p-4 rounded-xl border border-slate-100 space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -281,7 +301,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {MOCK_EMPLOYEES.slice(0, 5).map((emp) => (
+              {(dashboard?.recentEmployees ?? []).length === 0 && (
+                <tr>
+                  <td className="px-6 py-8 text-center text-sm font-semibold text-slate-400" colSpan={6}>
+                    No employees yet.
+                  </td>
+                </tr>
+              )}
+              {(dashboard?.recentEmployees ?? []).map((emp) => (
                 <tr key={emp.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -291,18 +318,18 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                       <span className="font-bold text-slate-900 text-sm">{emp.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-slate-500 text-sm">{emp.email}</td>
+                  <td className="px-6 py-4 text-slate-500 text-sm">{emp.email ?? '-'}</td>
                   <td className="px-6 py-4 text-slate-600 font-medium text-sm">{emp.department}</td>
-                  <td className="px-6 py-4 text-slate-600 text-sm">{emp.role}</td>
+                  <td className="px-6 py-4 text-slate-600 text-sm">{emp.position}</td>
                   <td className="px-6 py-4 text-center">
                     <span className={cn(
                       "px-2.5 py-1 rounded-lg text-[10px] font-bold",
-                      emp.status === 'Active' ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
+                      emp.status === 'active' ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
                     )}>
                       {emp.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-slate-500 text-sm">{emp.joinDate}</td>
+                  <td className="px-6 py-4 text-slate-500 text-sm">{emp.hire_date}</td>
                 </tr>
               ))}
             </tbody>

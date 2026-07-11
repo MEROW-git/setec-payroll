@@ -79,6 +79,7 @@ function FieldShell({
 export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<CreateEmployeePayload>(initialForm);
+  const [photoPreview, setPhotoPreview] = useState('');
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [managers, setManagers] = useState<EmployeeListItem[]>([]);
@@ -112,6 +113,13 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
       return next;
     });
     setError('');
+  };
+
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setPhotoPreview(URL.createObjectURL(file));
   };
 
   const validateStep = (targetStep = step) => {
@@ -232,10 +240,22 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
             key="personal"
             transition={{ duration: 0.2 }}
           >
-            <div className="mx-auto flex h-32 w-32 flex-col items-center justify-center rounded-full border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400">
-              <Upload className="h-8 w-8" />
-              <span className="mt-2 text-[10px] font-bold uppercase">Upload Photo</span>
-            </div>
+            <label className="mx-auto flex h-32 w-32 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-slate-200 bg-slate-50 text-center text-slate-400 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600">
+              {photoPreview ? (
+                <img alt="Employee preview" className="h-full w-full object-cover" src={photoPreview} />
+              ) : (
+                <>
+                  <Upload className="h-8 w-8 shrink-0" />
+                  <span className="mt-2 max-w-[78px] text-[9px] font-bold uppercase leading-tight">
+                    Upload Photo
+                  </span>
+                  <span className="mt-0.5 text-[8px] font-bold uppercase leading-tight text-slate-300">
+                    Optional
+                  </span>
+                </>
+              )}
+              <input accept="image/*" className="hidden" onChange={handlePhotoChange} type="file" />
+            </label>
             <div className="grid gap-6 md:grid-cols-2">
               <label>
                 <span className="text-sm font-bold text-slate-800">First Name</span>
@@ -259,7 +279,7 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
                 {fieldErrors.work_email && <p className="mt-2 text-xs font-semibold text-rose-600">{fieldErrors.work_email}</p>}
               </label>
               <label>
-                <span className="text-sm font-bold text-slate-800">Phone Number</span>
+                <span className="text-sm font-bold text-slate-800">Phone Number <span className="font-medium text-slate-400">(optional)</span></span>
                 <FieldShell icon={Phone}>
                   <input className="h-full flex-1 bg-transparent outline-none" onChange={(event) => updateField('phone', event.target.value)} placeholder="+1 (555) 000-0000" value={form.phone} />
                 </FieldShell>
@@ -331,13 +351,13 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
               {fieldErrors.address && <p className="mt-2 text-xs font-semibold text-rose-600">{fieldErrors.address}</p>}
             </label>
             <label>
-              <span className="text-sm font-bold text-slate-800">City</span>
+              <span className="text-sm font-bold text-slate-800">City <span className="font-medium text-slate-400">(optional)</span></span>
               <FieldShell icon={MapPin}>
                 <input className="h-full flex-1 bg-transparent outline-none" placeholder="e.g. San Francisco" />
               </FieldShell>
             </label>
             <label>
-              <span className="text-sm font-bold text-slate-800">Country</span>
+              <span className="text-sm font-bold text-slate-800">Country <span className="font-medium text-slate-400">(optional)</span></span>
               <FieldShell icon={MapPin}>
                 <input className="h-full flex-1 bg-transparent outline-none" placeholder="e.g. USA" />
               </FieldShell>
@@ -380,7 +400,7 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
               </div>
             </div>
             <label>
-              <span className="text-sm font-bold text-slate-800">Reporting Manager</span>
+              <span className="text-sm font-bold text-slate-800">Reporting Manager <span className="font-medium text-slate-400">(optional)</span></span>
               <FieldShell icon={User}>
                 <select className="h-full flex-1 bg-transparent outline-none" onChange={(event) => updateField('manager_id', Number(event.target.value) || '')} value={form.manager_id}>
                   <option value="">Select Manager</option>
