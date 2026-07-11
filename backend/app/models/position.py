@@ -15,6 +15,7 @@ class Position(BaseModel, SoftDeleteMixin):
     department_id = db.Column(UnsignedBigInteger, db.ForeignKey("departments.id", ondelete="RESTRICT"), nullable=False)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text)
+    permissions = db.Column(db.JSON)
     min_salary = db.Column(db.Numeric(12, 2))
     max_salary = db.Column(db.Numeric(12, 2))
     is_active = db.Column(db.Boolean, default=True, nullable=False)

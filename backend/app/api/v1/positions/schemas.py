@@ -7,6 +7,7 @@ def serialize_position(position: Position) -> dict:
         "department_id": position.department_id,
         "title": position.title,
         "description": position.description,
+        "permissions": position.permissions or [],
         "is_active": position.is_active,
     }
 

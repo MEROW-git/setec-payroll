@@ -53,6 +53,7 @@ export type Department = {
   code: string;
   description: string | null;
   is_active: boolean;
+  annual_budget: number | null;
 };
 
 export type DepartmentMember = {
@@ -83,6 +84,7 @@ export type Position = {
   title: string;
   description: string | null;
   is_active: boolean;
+  permissions: string[];
 };
 
 export type ManagedPosition = Position & {
@@ -222,7 +224,7 @@ export function getDepartmentDetail(departmentId: number) {
   return request<DepartmentDetail>(`/api/v1/departments/${departmentId}`);
 }
 
-export function createDepartment(payload: { name: string; code: string; description?: string }) {
+export function createDepartment(payload: { name: string; code: string; description?: string; manager_employee_id?: number; annual_budget?: number }) {
   return request<ManagedDepartment>('/api/v1/departments/', {
     method: 'POST',
     body: JSON.stringify(payload),
@@ -239,7 +241,7 @@ export function getManagedPositions(search = '') {
   return request<PositionManagementResult>(`/api/v1/positions/management${query}`);
 }
 
-export function createPosition(payload: { title: string; description?: string; department_id: number }) {
+export function createPosition(payload: { title: string; description?: string; department_id: number; permissions?: string[] }) {
   return request<ManagedPosition>('/api/v1/positions/', {
     method: 'POST',
     body: JSON.stringify(payload),

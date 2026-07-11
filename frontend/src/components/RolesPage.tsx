@@ -54,6 +54,7 @@ function RoleCard({ role, onAssign }: { role: ManagedPosition; onAssign: (role: 
         <p className="mt-4 min-h-12 text-sm leading-6 text-slate-500">
           {role.description || 'No role description has been added yet.'}
         </p>
+        {role.permissions.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{role.permissions.slice(0, 3).map((permission) => <span key={permission} className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase text-slate-600">{permission}</span>)}</div>}
         <div className="mt-5 flex items-center justify-between text-sm text-slate-500">
           <span>Employees</span>
           <span className="font-bold text-slate-950">{role.employee_count}</span>
@@ -202,7 +203,7 @@ function AddRoleDialog({ departments, onClose, onCreated }: AddRoleDialogProps) 
   );
 }
 
-export default function RolesPage() {
+export default function RolesPage({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [result, setResult] = useState(emptyResult);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [search, setSearch] = useState('');
@@ -230,7 +231,7 @@ export default function RolesPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-3xl font-bold text-slate-950">Employee Roles</h2><p className="mt-2 text-lg text-slate-500">Define and manage job roles and assignments.</p></div><button onClick={() => setShowAddRole(true)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700"><Plus className="h-5 w-5" />Add New Role</button></div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-3xl font-bold text-slate-950">Employee Roles</h2><p className="mt-2 text-lg text-slate-500">Define and manage job roles and assignments.</p></div><button onClick={() => onNavigate('roles/new')} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700"><Plus className="h-5 w-5" />Add New Role</button></div>
       <div className="grid gap-5 md:grid-cols-3">{cards.map(({ label, value, icon: Icon, color }) => <div key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-2xl font-bold text-slate-950">{value}</p></div><div className={`flex h-11 w-11 items-center justify-center rounded-xl ${color}`}><Icon className="h-5 w-5" /></div></div>)}</div>
       <div className="flex flex-col gap-4 rounded-3xl bg-white p-3 sm:flex-row sm:items-center"><div className="flex h-14 flex-1 items-center gap-3 rounded-2xl bg-slate-50 px-5 text-slate-400"><Search className="h-5 w-5" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search roles or descriptions..." className="h-full flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400" /></div><div className="flex gap-3"><div className="flex rounded-2xl bg-slate-50 p-1"><button title="Grid view" className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm"><Grid2X2 className="h-5 w-5" /></button><button title="List view" className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-400"><List className="h-5 w-5" /></button></div><button className="flex h-12 items-center gap-2 rounded-2xl bg-slate-50 px-5 text-sm font-bold text-slate-600"><SlidersHorizontal className="h-4 w-4" />Filter</button></div></div>
       {isLoading ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center font-semibold text-slate-500">Loading roles...</div> : error ? <div className="rounded-2xl border border-red-200 bg-red-50 p-10 text-center font-semibold text-red-700">{error}</div> : result.items.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center font-semibold text-slate-500">No employee roles found.</div> : <motion.div layout className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">{result.items.map((role) => <RoleCard key={role.id} role={role} onAssign={setAssigningRole} />)}</motion.div>}

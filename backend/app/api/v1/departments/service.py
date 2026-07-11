@@ -14,6 +14,7 @@ from app.api.v1.departments.schemas import (
     serialize_departments,
     serialize_managed_department,
 )
+from app.models import Employee
 
 
 def get_departments() -> list[dict]:
@@ -46,11 +47,18 @@ def get_department_by_id(department_id: int) -> dict | None:
         **serialize_managed_department(department),
         "members": members,
         "performance": performance,
-        "annual_budget": None,
+        "annual_budget": float(department.annual_budget) if department.annual_budget is not None else None,
     }
 
 
 def create_department_record(data: dict) -> tuple[dict | None, dict | None]:
     if get_department_by_name_or_code(data["name"], data["code"]):
         return None, {"name": ["A department with this name or code already exists."]}
+    if data.get("manager_employee_id"):
+        manager = Employee.query.filter(
+            Employee.id == data["manager_employee_id"],
+            Employee.deleted_at.is_(None),
+        ).first()
+        if not manager:
+            return None, {"manager_employee_id": ["Selected manager was not found."]}
     return serialize_managed_department(create_department(data)), None

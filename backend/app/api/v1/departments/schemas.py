@@ -18,6 +18,7 @@ def serialize_department(department: Department) -> dict:
         "name": department.name,
         "code": department.code,
         "description": department.description,
+        "annual_budget": float(department.annual_budget) if department.annual_budget is not None else None,
         "is_active": department.is_active,
     }
 

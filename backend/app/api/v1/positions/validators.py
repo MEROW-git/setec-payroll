@@ -3,6 +3,7 @@ def validate_create_position_payload(payload: dict) -> dict:
     data = {
         "title": (payload.get("title") or "").strip(),
         "description": (payload.get("description") or "").strip() or None,
+        "permissions": payload.get("permissions") or [],
         "department_id": payload.get("department_id"),
         "is_active": True,
     }
@@ -14,6 +15,18 @@ def validate_create_position_payload(payload: dict) -> dict:
 
     if data["description"] and len(data["description"]) > 2000:
         errors["description"] = ["Description must be 2000 characters or fewer."]
+
+    if not isinstance(data["permissions"], list):
+        errors["permissions"] = ["Permissions must be a list."]
+    else:
+        cleaned_permissions = []
+        for permission in data["permissions"]:
+            value = str(permission).strip()
+            if value and value not in cleaned_permissions:
+                cleaned_permissions.append(value[:100])
+        if len(cleaned_permissions) > 30:
+            errors["permissions"] = ["A role may have at most 30 permissions."]
+        data["permissions"] = cleaned_permissions
 
     try:
         data["department_id"] = int(data["department_id"])

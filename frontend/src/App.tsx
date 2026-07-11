@@ -7,6 +7,8 @@ import EmployeesPage from './components/EmployeesPage';
 import ProfilePage from './components/ProfilePage';
 import RolesPage from './components/RolesPage';
 import DepartmentsPage from './components/DepartmentsPage';
+import CreateRolePage from './components/CreateRolePage';
+import CreateDepartmentPage from './components/CreateDepartmentPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -125,6 +127,10 @@ function App() {
   };
 
   const renderContent = () => {
+    if (activeTab === 'departments/new') {
+      return <CreateDepartmentPage onNavigate={navigateTo} />;
+    }
+
     if (activeTab === 'departments' || activeTab.startsWith('departments/')) {
       const departmentId = activeTab.startsWith('departments/') ? Number(activeTab.split('/')[1]) : undefined;
       return <DepartmentsPage departmentId={departmentId} onNavigate={navigateTo} />;
@@ -144,7 +150,9 @@ function App() {
       case 'profile':
         return <ProfilePage user={authUser} />;
       case 'roles':
-        return <RolesPage />;
+        return <RolesPage onNavigate={navigateTo} />;
+      case 'roles/new':
+        return <CreateRolePage onNavigate={navigateTo} />;
       default:
         return (
           <div className="flex items-center justify-center h-full">

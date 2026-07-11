@@ -13,6 +13,7 @@ class Department(BaseModel, SoftDeleteMixin):
     name = db.Column(db.String(150), unique=True, nullable=False)
     code = db.Column(db.String(30), unique=True, nullable=False)
     description = db.Column(db.Text)
+    annual_budget = db.Column(db.Numeric(14, 2))
     manager_employee_id = db.Column(
         UnsignedBigInteger,
         db.ForeignKey("employees.id", ondelete="SET NULL", use_alter=True, name="fk_departments_manager_employee_id"),
