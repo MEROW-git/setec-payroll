@@ -1,4 +1,5 @@
 from app.models.attendance import Attendance
+from app.models.attendance_policy import AttendancePolicy
 from app.models.audit_log import AuditLog
 from app.models.announcement import Announcement
 from app.models.candidate import Candidate
@@ -21,6 +22,7 @@ from app.models.user import User
 __all__ = [
     "Announcement",
     "Attendance",
+    "AttendancePolicy",
     "AuditLog",
     "Candidate",
     "Department",

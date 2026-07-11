@@ -21,6 +21,7 @@ class Attendance(BaseModel):
     work_minutes = db.Column(db.Integer, default=0, nullable=False)
     overtime_minutes = db.Column(db.Integer, default=0, nullable=False)
     status = db.Column(db.String(40), nullable=False, default="present")
+    work_location = db.Column(db.String(100))
     note = db.Column(db.Text)
     approved_by = db.Column(UnsignedBigInteger, db.ForeignKey("users.id", ondelete="SET NULL"))
 

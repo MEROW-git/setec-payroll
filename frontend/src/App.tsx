@@ -9,6 +9,8 @@ import RolesPage from './components/RolesPage';
 import DepartmentsPage from './components/DepartmentsPage';
 import CreateRolePage from './components/CreateRolePage';
 import CreateDepartmentPage from './components/CreateDepartmentPage';
+import AttendancePage from './components/AttendancePage';
+import AttendancePolicyPage from './components/AttendancePolicyPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -153,6 +155,10 @@ function App() {
         return <RolesPage onNavigate={navigateTo} />;
       case 'roles/new':
         return <CreateRolePage onNavigate={navigateTo} />;
+      case 'attendance':
+        return <AttendancePage onNavigate={navigateTo} />;
+      case 'attendance/policy':
+        return <AttendancePolicyPage onNavigate={navigateTo} />;
       default:
         return (
           <div className="flex items-center justify-center h-full">

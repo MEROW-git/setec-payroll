@@ -157,6 +157,53 @@ export type NotificationResult = {
   unread_count: number;
 };
 
+export type AttendanceRecord = {
+  id: number;
+  employee_id: number;
+  employee_code: string;
+  employee_name: string;
+  date: string;
+  check_in: string | null;
+  check_out: string | null;
+  work_minutes: number;
+  overtime_minutes: number;
+  location: string | null;
+  status: string;
+  note: string | null;
+};
+
+export type AttendanceRecordsResult = {
+  items: AttendanceRecord[];
+  stats: Record<'present' | 'late' | 'absent' | 'remote' | 'on_leave', number>;
+};
+
+export type AttendanceMatrixEmployee = {
+  id: number;
+  employee_code: string;
+  name: string;
+  records: Record<string, string>;
+};
+
+export type RawPunch = {
+  id: string;
+  employee_id: number;
+  employee_name: string;
+  timestamp: string;
+  device: string | null;
+  method: string;
+  status: string;
+};
+
+export type AttendancePolicy = {
+  id: number;
+  name: string;
+  count_type: string;
+  considerable_value: number;
+  adjusted_days: number;
+  description: string | null;
+  is_active: boolean;
+};
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -267,4 +314,35 @@ export function getDashboardStats() {
 
 export function getNotifications() {
   return request<NotificationResult>('/api/v1/dashboard/notifications');
+}
+
+export function getAttendanceRecords(params: { start_date: string; end_date: string; search?: string }) {
+  const query = new URLSearchParams(params).toString();
+  return request<AttendanceRecordsResult>(`/api/v1/attendance/records?${query}`);
+}
+
+export function getAttendanceMatrix(month: string, search = '') {
+  const query = new URLSearchParams({ month, ...(search ? { search } : {}) }).toString();
+  return request<{ employees: AttendanceMatrixEmployee[] }>(`/api/v1/attendance/matrix?${query}`);
+}
+
+export function getRawPunches(params: { start_date: string; end_date: string; search?: string }) {
+  const query = new URLSearchParams(params).toString();
+  return request<RawPunch[]>(`/api/v1/attendance/raw-punches?${query}`);
+}
+
+export function getAttendanceDevices() {
+  return request<unknown[]>('/api/v1/attendance/devices');
+}
+
+export function markAttendance(payload: { employee_id: number; date: string; status: string; check_in?: string; check_out?: string; location?: string; note?: string }) {
+  return request<AttendanceRecord>('/api/v1/attendance/records', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export function getAttendancePolicies() {
+  return request<AttendancePolicy[]>('/api/v1/attendance/policies');
+}
+
+export function createAttendancePolicy(payload: { name: string; count_type: string; considerable_value: number; adjusted_days: number; description?: string }) {
+  return request<AttendancePolicy>('/api/v1/attendance/policies', { method: 'POST', body: JSON.stringify(payload) });
 }
