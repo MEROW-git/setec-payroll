@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Lock, Mail, UsersRound } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import EmployeeDashboard from './components/EmployeeDashboard';
@@ -98,10 +98,11 @@ function App() {
 
     const handlePopState = () => {
       if (window.location.pathname === '/login') {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('auth_user');
-        setAuthUser(null);
-        setIsAuthenticated(false);
+        if (localStorage.getItem('access_token')) {
+          window.history.replaceState({ tab: 'dashboard' }, '', '/dashboard');
+          setActiveTab('dashboard');
+          return;
+        }
         setActiveTab('dashboard');
         return;
       }
@@ -133,7 +134,7 @@ function App() {
       setAuthUser(result.user);
       setActiveTab('dashboard');
       setIsAuthenticated(true);
-      window.history.pushState({ tab: 'dashboard' }, '', '/dashboard');
+      window.history.replaceState({ tab: 'dashboard' }, '', '/dashboard');
     } catch (error) {
       setLoginError(error instanceof Error ? error.message : 'Unable to sign in.');
     } finally {
@@ -252,11 +253,11 @@ function App() {
           <div className="login-spark login-spark-three" />
           <div className="relative z-10 flex max-w-lg flex-col items-center px-10 text-center text-white">
             <div className="login-float mb-12 flex h-24 w-24 items-center justify-center rounded-3xl border-2 border-white/80 bg-white/10">
-              <ShieldCheck className="h-14 w-14" strokeWidth={1.8} />
+              <UsersRound className="h-14 w-14" strokeWidth={1.8} />
             </div>
             <div className="login-card-float mb-14 rounded-[2rem] border-8 border-slate-950 bg-blue-500 p-8 shadow-2xl">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-white">
-                <ShieldCheck className="login-icon-pulse h-9 w-9 text-blue-600" />
+                <UsersRound className="login-icon-pulse h-9 w-9 text-blue-600" />
               </div>
               <div className="space-y-3">
                 <div className="h-3 w-44 rounded-full bg-white/90" />
@@ -278,7 +279,7 @@ function App() {
           <div className="w-full max-w-md">
             <div className="mb-9 flex items-center gap-6">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-                <ShieldCheck className="h-9 w-9" />
+                <UsersRound className="h-9 w-9" />
               </div>
               <div>
                 <h2 className="text-3xl font-bold text-slate-950">Welcome Back</h2>

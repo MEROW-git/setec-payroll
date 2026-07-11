@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import date
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from app import create_app
 from app.extensions import db
-from app.models import LeaveType, Role, SalaryComponent, User
+from app.models import Department, Employee, LeaveType, Position, Role, SalaryComponent, User
 from app.common.security import hash_password
 
 load_dotenv()
@@ -74,7 +75,72 @@ def seed_admin():
     if not created:
         user.role_id = super_admin.id
         user.name = admin_name
+        user.password_hash = hash_password(admin_password)
         user.is_active = True
+
+
+def seed_employee():
+    employee_name = os.getenv("EMPLOYEE_NAME", "Demo Employee").strip()
+    employee_email = os.getenv("EMPLOYEE_EMAIL")
+    employee_password = os.getenv("EMPLOYEE_PASSWORD")
+
+    if not employee_email or not employee_password:
+        raise RuntimeError("EMPLOYEE_EMAIL and EMPLOYEE_PASSWORD must be set before running seed.py")
+
+    employee_role = Role.query.filter_by(name="Employee").first()
+    user, created = get_or_create(
+        User,
+        email=employee_email,
+        defaults={
+            "role_id": employee_role.id,
+            "name": employee_name,
+            "password_hash": hash_password(employee_password),
+            "is_active": True,
+        },
+    )
+    if not created:
+        user.role_id = employee_role.id
+        user.name = employee_name
+        user.password_hash = hash_password(employee_password)
+        user.is_active = True
+
+    department, _ = get_or_create(
+        Department,
+        code="GENERAL",
+        defaults={"name": "General", "description": "General operations", "is_active": True},
+    )
+    db.session.flush()
+    position, _ = get_or_create(
+        Position,
+        department_id=department.id,
+        title="Staff",
+        defaults={"description": "General staff position", "is_active": True},
+    )
+    db.session.flush()
+
+    first_name, _, last_name = employee_name.partition(" ")
+    employee, employee_created = get_or_create(
+        Employee,
+        employee_code="EMP-DEMO-001",
+        defaults={
+            "user_id": user.id,
+            "department_id": department.id,
+            "position_id": position.id,
+            "first_name": first_name,
+            "last_name": last_name or "Employee",
+            "work_email": employee_email,
+            "hire_date": date.today(),
+            "employment_status": "active",
+            "employment_type": "full_time",
+            "basic_salary": 0,
+        },
+    )
+    if not employee_created:
+        employee.user_id = user.id
+        employee.work_email = employee_email
+        employee.department_id = department.id
+        employee.position_id = position.id
+        employee.employment_status = "active"
 
 
 def seed_leave_types():
@@ -115,6 +181,7 @@ def main():
         seed_roles()
         db.session.flush()
         seed_admin()
+        seed_employee()
         seed_leave_types()
         seed_salary_components()
         db.session.commit()

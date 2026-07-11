@@ -79,7 +79,10 @@ Make sure these values are set in `.env`:
 ```text
 ADMIN_NAME=Super Admin
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=ChangeMe123!
+ADMIN_PASSWORD=AdminPassword123!
+EMPLOYEE_NAME=Demo Employee
+EMPLOYEE_EMAIL=employee@example.com
+EMPLOYEE_PASSWORD=EmployeePassword123!
 ```
 
 Then run:
@@ -92,6 +95,7 @@ The seed script creates:
 
 - Roles: Super Admin, HR Manager, Department Manager, Employee
 - Admin user from environment variables
+- Employee user and linked demo employee from environment variables
 - Leave types: Annual Leave, Sick Leave, Unpaid Leave
 - Salary components: Transport Allowance, Meal Allowance, Tax Deduction, Late Deduction
 
