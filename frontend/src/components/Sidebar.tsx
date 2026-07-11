@@ -35,6 +35,7 @@ export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarPr
     { id: 'allowance-deduction', label: 'Allowance & Deduction', icon: Wallet },
     { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
     { id: 'payroll', label: 'Payroll', icon: CreditCard },
+    { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'performance', label: 'Performance', icon: BarChart3 },
   ];
 

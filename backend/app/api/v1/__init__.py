@@ -13,6 +13,7 @@ from app.api.v1.shifts.routes import shifts_bp
 from app.api.v1.adjustments.routes import adjustments_bp
 from app.api.v1.events.routes import events_bp
 from app.api.v1.reports.routes import reports_bp
+from app.api.v1.performance.routes import performance_bp
 
 api_v1 = Blueprint("api_v1", __name__)
 
@@ -29,3 +30,4 @@ api_v1.register_blueprint(shifts_bp, url_prefix="/shifts")
 api_v1.register_blueprint(adjustments_bp, url_prefix="/adjustments")
 api_v1.register_blueprint(events_bp, url_prefix="/events")
 api_v1.register_blueprint(reports_bp, url_prefix="/reports")
+api_v1.register_blueprint(performance_bp, url_prefix="/performance")
