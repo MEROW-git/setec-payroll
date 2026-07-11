@@ -86,3 +86,22 @@ def validate_create_employee_payload(payload: dict) -> dict:
         "errors": errors,
         "data": data,
     }
+
+
+def validate_employee_update_payload(payload: dict) -> dict:
+    allowed = {"first_name", "last_name", "phone", "work_email", "employment_status"}
+    data = {key: value.strip() if isinstance(value, str) else value for key, value in payload.items() if key in allowed}
+    errors = {}
+    if not data:
+        errors["payload"] = ["At least one employee field is required."]
+    if "first_name" in data and not data["first_name"]:
+        errors["first_name"] = ["First name is required."]
+    if "last_name" in data and not data["last_name"]:
+        errors["last_name"] = ["Last name is required."]
+    if "work_email" in data:
+        data["work_email"] = data["work_email"].lower()
+        if "@" not in data["work_email"]:
+            errors["work_email"] = ["Email must be valid."]
+    if "employment_status" in data and data["employment_status"] not in {"active", "inactive", "on_leave", "terminated"}:
+        errors["employment_status"] = ["Status is not supported."]
+    return {"is_valid": not errors, "errors": errors, "data": data}

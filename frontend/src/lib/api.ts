@@ -31,6 +31,8 @@ export type EmployeeListItem = {
   id: number;
   employee_code: string;
   name: string;
+  first_name: string;
+  last_name: string;
   email: string | null;
   department: string | null;
   department_id: number;
@@ -40,6 +42,12 @@ export type EmployeeListItem = {
   employment_type: string;
   profile_photo: string | null;
   hire_date: string | null;
+  phone?: string | null;
+  address?: string | null;
+  basic_salary?: number;
+  manager?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
 };
 
 export type EmployeeListResult = {
@@ -226,13 +234,12 @@ export type PayrollDashboard={items:PayrollRow[];stats:{total:number;processed:n
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
+  const headers = new Headers(options.headers);
+  if (!(options.body instanceof FormData) && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  if (token) headers.set('Authorization', `Bearer ${token}`);
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
     ...options,
+    headers,
   });
 
   const payload = (await response.json()) as ApiResponse<T>;
@@ -261,14 +268,28 @@ export function logout() {
   });
 }
 
-export function getEmployees(params: { search?: string; page?: number; per_page?: number } = {}) {
+export function getEmployees(params: { search?: string; page?: number; per_page?: number; status?: string; department_id?: number } = {}) {
   const searchParams = new URLSearchParams();
   if (params.search) searchParams.set('search', params.search);
   if (params.page) searchParams.set('page', String(params.page));
   if (params.per_page) searchParams.set('per_page', String(params.per_page));
+  if (params.status) searchParams.set('status', params.status);
+  if (params.department_id) searchParams.set('department_id', String(params.department_id));
 
   const query = searchParams.toString();
   return request<EmployeeListResult>(`/api/v1/employees/${query ? `?${query}` : ''}`);
+}
+
+export function getEmployee(employeeId: number) {
+  return request<EmployeeListItem>(`/api/v1/employees/${employeeId}`);
+}
+
+export function updateEmployee(employeeId: number, payload: Partial<Pick<EmployeeListItem, 'first_name' | 'last_name' | 'phone' | 'status'>> & { work_email?: string; employment_status?: string }) {
+  return request<EmployeeListItem>(`/api/v1/employees/${employeeId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+}
+
+export function deleteEmployee(employeeId: number) {
+  return request<null>(`/api/v1/employees/${employeeId}`, { method: 'DELETE' });
 }
 
 export function createEmployee(payload: CreateEmployeePayload) {
@@ -276,6 +297,12 @@ export function createEmployee(payload: CreateEmployeePayload) {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export function uploadEmployeePhoto(employeeId: number, photo: File) {
+  const form = new FormData();
+  form.append('photo', photo);
+  return request<{ employee_id:number;profile_photo:string;public_id:string;width:number;height:number;format:string;bytes:number }>(`/api/v1/uploads/employees/${employeeId}/photo`, { method: 'POST', body: form });
 }
 
 export function getDepartments() {

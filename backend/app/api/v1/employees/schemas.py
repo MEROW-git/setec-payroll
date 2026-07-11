@@ -18,6 +18,12 @@ def serialize_employee(employee: Employee) -> dict:
         "employment_type": employee.employment_type,
         "profile_photo": employee.profile_photo,
         "hire_date": employee.hire_date.isoformat() if employee.hire_date else None,
+        "phone": employee.phone,
+        "address": employee.address,
+        "basic_salary": float(employee.basic_salary or 0),
+        "manager": employee.manager.first_name + " " + employee.manager.last_name if employee.manager else None,
+        "emergency_contact_name": employee.emergency_contact_name,
+        "emergency_contact_phone": employee.emergency_contact_phone,
     }
 
 

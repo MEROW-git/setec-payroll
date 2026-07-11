@@ -45,6 +45,16 @@ copy .env.example .env
 
 Update `.env` if your MySQL username, password, host, or database name is different.
 
+Employee photos are stored in Cloudinary. Configure server-side credentials in `.env`:
+
+```text
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_rotated_api_secret
+```
+
+Never expose `CLOUDINARY_API_SECRET` through a frontend `VITE_*` variable.
+
 ## Run Migrations
 
 This project already includes an initial migration file at:

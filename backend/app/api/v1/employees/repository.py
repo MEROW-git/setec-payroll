@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
@@ -77,3 +79,15 @@ def create_employee(data: dict) -> Employee:
     db.session.add(employee)
     db.session.commit()
     return employee
+
+
+def update_employee(employee: Employee, data: dict) -> Employee:
+    for field, value in data.items():
+        setattr(employee, field, value)
+    db.session.commit()
+    return employee
+
+
+def soft_delete_employee(employee: Employee) -> None:
+    employee.deleted_at = datetime.now(timezone.utc)
+    db.session.commit()

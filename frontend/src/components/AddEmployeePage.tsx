@@ -20,6 +20,7 @@ import {
   EmployeeListItem,
   Position,
   createEmployee,
+  uploadEmployeePhoto,
   getDepartments,
   getEmployees,
   getPositions,
@@ -80,6 +81,8 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<CreateEmployeePayload>(initialForm);
   const [photoPreview, setPhotoPreview] = useState('');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [createdEmployeeId, setCreatedEmployeeId] = useState<number | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [managers, setManagers] = useState<EmployeeListItem[]>([]);
@@ -118,8 +121,12 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) { setError('Photo must be a JPEG, PNG, or WebP image.'); return; }
+    if (file.size > 5 * 1024 * 1024) { setError('Photo must not exceed 5 MB.'); return; }
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+    setError('');
   };
 
   const validateStep = (targetStep = step) => {
@@ -171,7 +178,13 @@ export default function AddEmployeePage({ onNavigate }: AddEmployeePageProps) {
     setError('');
 
     try {
-      await createEmployee(form);
+      let employeeId = createdEmployeeId;
+      if (!employeeId) {
+        const employee = await createEmployee(form);
+        employeeId = employee.id;
+        setCreatedEmployeeId(employee.id);
+      }
+      if (photoFile) await uploadEmployeePhoto(employeeId, photoFile);
       onNavigate('employees');
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to save employee.');

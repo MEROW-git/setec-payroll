@@ -1,166 +1,55 @@
-import { Briefcase, Calendar, Grid2X2, List, Mail, MoreVertical, Plus, Search, SlidersHorizontal } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { EmployeeListItem, getEmployees } from '../lib/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Badge, Briefcase, Calendar, Eye, Grid2X2, List, Mail, MoreVertical, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, Trash2, UserRound, UserX, X } from 'lucide-react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { deleteEmployee, Department, EmployeeListItem, getDepartments, getEmployee, getEmployees, updateEmployee } from '../lib/api';
 import { cn } from '../lib/utils';
 
-function statusLabel(status: string) {
-  return status
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+const statusOptions = ['active', 'on_leave', 'inactive', 'terminated'];
+const statusLabel = (status: string) => status.split('_').map((word) => word[0].toUpperCase() + word.slice(1)).join(' ');
+const initialsFor = (name: string) => name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+
+function Dialog({ children, onClose, wide = false }: { children: React.ReactNode; onClose: () => void; wide?: boolean }) {
+  useEffect(() => { const close = (event: KeyboardEvent) => event.key === 'Escape' && onClose(); window.addEventListener('keydown', close); return () => window.removeEventListener('keydown', close); }, [onClose]);
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={onClose} className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"><motion.div role="dialog" aria-modal="true" initial={{ opacity: 0, y: 16, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: .98 }} onMouseDown={(event) => event.stopPropagation()} className={cn('max-h-[90vh] w-full overflow-auto rounded-2xl border border-slate-200 bg-white shadow-2xl', wide ? 'max-w-3xl' : 'max-w-lg')}>{children}</motion.div></motion.div>;
 }
 
-function initialsFor(name: string) {
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-function EmployeeCard({ employee }: { employee: EmployeeListItem }) {
-  const isActive = employee.status === 'active';
-
-  return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="p-6">
-        <div className="mb-6 flex items-start justify-between">
-          {employee.profile_photo ? (
-            <img
-              alt={employee.name}
-              className="h-16 w-16 rounded-xl object-cover"
-              src={employee.profile_photo}
-            />
-          ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-indigo-100 text-lg font-bold text-indigo-700">
-              {initialsFor(employee.name)}
-            </div>
-          )}
-          <button className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-50 hover:text-slate-700">
-            <MoreVertical className="h-5 w-5" />
-          </button>
-        </div>
-
-        <h3 className="text-xl font-bold text-slate-950">{employee.name}</h3>
-        <p className="mt-1 text-sm font-medium text-slate-500">{employee.position ?? 'Unassigned'}</p>
-
-        <div className="mt-5 space-y-3 text-sm text-slate-600">
-          <div className="flex items-center gap-3">
-            <Briefcase className="h-4 w-4 text-slate-400" />
-            <span>{employee.department ?? 'No department'}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Mail className="h-4 w-4 text-slate-400" />
-            <span>{employee.email ?? 'No email'}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Calendar className="h-4 w-4 text-slate-400" />
-            <span>Joined {employee.hire_date ?? 'Unknown'}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50 px-6 py-4">
-        <span
-          className={cn(
-            'rounded-full px-3 py-1 text-xs font-bold',
-            isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
-          )}
-        >
-          {statusLabel(employee.status)}
-        </span>
-        <button className="text-sm font-bold text-indigo-600">View Profile</button>
-      </div>
-    </article>
-  );
-}
-
-type EmployeesPageProps = {
-  onNavigate: (tab: string) => void;
-};
-
-export default function EmployeesPage({ onNavigate }: EmployeesPageProps) {
-  const [employees, setEmployees] = useState<EmployeeListItem[]>([]);
-  const [search, setSearch] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+function EmployeeDialog({ employeeId, mode, onClose, onChanged }: { employeeId: number; mode: 'profile' | 'id' | 'edit' | 'status'; onClose: () => void; onChanged: () => void }) {
+  const [employee, setEmployee] = useState<EmployeeListItem | null>(null);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { getEmployee(employeeId).then(setEmployee).catch((err) => setError(err instanceof Error ? err.message : 'Unable to load employee.')); }, [employeeId]);
+  const save = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); if (!employee) return; setSaving(true); setError('');
+    const form = new FormData(event.currentTarget);
+    const payload = mode === 'status' ? { employment_status: String(form.get('status')) } : { first_name: String(form.get('first_name')), last_name: String(form.get('last_name')), work_email: String(form.get('work_email')), phone: String(form.get('phone')) };
+    try { await updateEmployee(employee.id, payload); onChanged(); onClose(); } catch (err) { setError(err instanceof Error ? err.message : 'Unable to update employee.'); } finally { setSaving(false); }
+  };
+  if (!employee) return <Dialog onClose={onClose}><div className="p-8 text-center text-slate-500">{error || 'Loading employee...'}</div></Dialog>;
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setIsLoading(true);
-      setError('');
-      getEmployees({ search, per_page: 24 })
-        .then((result) => setEmployees(result.items))
-        .catch((requestError) => {
-          setError(requestError instanceof Error ? requestError.message : 'Unable to load employees.');
-        })
-        .finally(() => setIsLoading(false));
-    }, 250);
+  if (mode === 'id') return <Dialog onClose={onClose} wide><div className="flex items-center justify-between border-b border-slate-200 p-6"><div><h3 className="text-xl font-bold text-slate-950">Official Employee ID</h3><p className="text-sm text-slate-500">Print-ready employee identification</p></div><button onClick={onClose} title="Close"><X /></button></div><div className="grid gap-6 bg-slate-50 p-8 md:grid-cols-2"><div className="overflow-hidden rounded-3xl border border-indigo-400 bg-white text-center shadow-xl"><div className="bg-indigo-600 px-6 pb-20 pt-8 text-white"><ShieldCheck className="mx-auto h-10 w-10"/><p className="mt-3 text-sm font-bold tracking-widest">SIEGECODE HRM</p></div><div className="-mt-14 px-7 pb-8"><div className="mx-auto flex h-28 w-28 items-center justify-center rounded-2xl border-4 border-white bg-indigo-100 text-3xl font-bold text-indigo-700">{initialsFor(employee.name)}</div><h4 className="mt-5 text-2xl font-bold text-slate-950">{employee.name}</h4><p className="text-indigo-600">{employee.position}</p><div className="mt-6 grid grid-cols-2 gap-3 text-left"><div className="rounded-xl bg-slate-50 p-3"><small className="text-slate-400">ID NUMBER</small><p className="font-bold">{employee.employee_code}</p></div><div className="rounded-xl bg-slate-50 p-3"><small className="text-slate-400">STATUS</small><p className="font-bold">{statusLabel(employee.status)}</p></div></div></div></div><div className="rounded-3xl bg-slate-950 p-8 text-slate-200 shadow-xl"><ShieldCheck className="h-9 w-9 text-indigo-400"/><h4 className="mt-6 text-lg font-bold text-white">SECURITY INFORMATION</h4><p className="mt-3 text-sm text-slate-400">This card is the property of Siegecode HRM. If found, please return it to Human Resources.</p><div className="mt-10 space-y-5"><p><span className="block text-xs text-slate-500">OFFICE EMAIL</span>{employee.email}</p><p><span className="block text-xs text-slate-500">DEPARTMENT</span>{employee.department}</p><p><span className="block text-xs text-slate-500">EMERGENCY CONTACT</span>{employee.emergency_contact_phone || 'Not provided'}</p></div></div></div><div className="flex justify-end border-t border-slate-200 p-5"><button onClick={() => window.print()} className="rounded-xl bg-indigo-600 px-5 py-3 font-bold text-white">Print ID Card</button></div></Dialog>;
 
-    return () => window.clearTimeout(timer);
-  }, [search]);
+  if (mode === 'profile') return <Dialog onClose={onClose} wide><div className="flex items-start justify-between border-b border-slate-200 p-7"><div className="flex items-center gap-5"><div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-100 text-2xl font-bold text-indigo-700">{initialsFor(employee.name)}</div><div><h3 className="text-2xl font-bold text-slate-950">{employee.name}</h3><p className="text-slate-500">{employee.position} · {employee.department}</p><span className="mt-2 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">{statusLabel(employee.status)}</span></div></div><button onClick={onClose} title="Close"><X /></button></div><div className="grid gap-4 p-7 sm:grid-cols-2"><Detail label="Employee ID" value={employee.employee_code}/><Detail label="Email" value={employee.email}/><Detail label="Phone" value={employee.phone}/><Detail label="Joined" value={employee.hire_date}/><Detail label="Manager" value={employee.manager}/><Detail label="Address" value={employee.address}/></div></Dialog>;
 
-  const emptyMessage = useMemo(() => {
-    if (isLoading) return 'Loading employees...';
-    if (error) return error;
-    return 'No employees found.';
-  }, [error, isLoading]);
+  return <Dialog onClose={onClose}><form onSubmit={save}><div className="flex items-center justify-between border-b border-slate-200 p-6"><h3 className="text-xl font-bold text-slate-950">{mode === 'status' ? 'Change Employee Status' : 'Edit Employee Details'}</h3><button type="button" onClick={onClose} title="Close"><X /></button></div><div className="space-y-4 p-6">{mode === 'status' ? <label className="block text-sm font-bold text-slate-700">Status<select name="status" defaultValue={employee.status} className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4">{statusOptions.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></label> : <><div className="grid gap-4 sm:grid-cols-2"><Field name="first_name" label="First Name" value={employee.name.split(' ')[0]}/><Field name="last_name" label="Last Name" value={employee.name.split(' ').slice(1).join(' ')}/></div><Field name="work_email" label="Work Email" value={employee.email || ''}/><Field name="phone" label="Phone (optional)" value={employee.phone || ''}/></>}{error && <p className="rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}</div><div className="flex justify-end gap-3 border-t border-slate-200 p-5"><button type="button" onClick={onClose} className="px-4 font-bold text-slate-500">Cancel</button><button disabled={saving} className="rounded-xl bg-indigo-600 px-5 py-3 font-bold text-white disabled:opacity-50">{saving ? 'Saving...' : 'Save Changes'}</button></div></form></Dialog>;
+}
 
-  return (
-    <div className="mx-auto max-w-7xl space-y-7">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-950">Employee Directory</h2>
-          <p className="mt-2 text-lg text-slate-500">Manage and view all team members in one place.</p>
-        </div>
-        <button
-          onClick={() => onNavigate('add-employee')}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700"
-        >
-          <Plus className="h-5 w-5" />
-          Add New Employee
-        </button>
-      </div>
+function Field({ name, label, value }: { name: string; label: string; value: string }) { return <label className="block text-sm font-bold text-slate-700">{label}<input required={name !== 'phone'} name={name} defaultValue={value} className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 font-normal" /></label>; }
+function Detail({ label, value }: { label: string; value?: string | null }) { return <div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase text-slate-400">{label}</p><p className="mt-1 font-semibold text-slate-800">{value || 'Not provided'}</p></div>; }
 
-      <div className="flex flex-col gap-4 rounded-3xl bg-white p-3 sm:flex-row sm:items-center">
-        <div className="flex h-14 flex-1 items-center gap-3 rounded-2xl bg-slate-50 px-5 text-slate-400">
-          <Search className="h-5 w-5" />
-          <input
-            className="h-full flex-1 bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400"
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by Employee name, id, role and department"
-            type="search"
-            value={search}
-          />
-        </div>
-        <div className="flex gap-3">
-          <div className="flex rounded-2xl bg-slate-50 p-1">
-            <button className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
-              <Grid2X2 className="h-5 w-5" />
-            </button>
-            <button className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-400">
-              <List className="h-5 w-5" />
-            </button>
-          </div>
-          <button className="flex h-12 items-center gap-2 rounded-2xl bg-slate-50 px-5 text-sm font-bold text-slate-600">
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
-          </button>
-        </div>
-      </div>
+type CardProps = { employee: EmployeeListItem; list?: boolean; onAction: (mode: 'profile' | 'id' | 'edit' | 'status' | 'terminate' | 'delete') => void };
+function EmployeeCard({ employee, list, onAction }: CardProps) {
+  const [open, setOpen] = useState(false); const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => { const close = (event: MouseEvent) => ref.current && !ref.current.contains(event.target as Node) && setOpen(false); document.addEventListener('mousedown', close); return () => document.removeEventListener('mousedown', close); }, []);
+  const menu = <AnimatePresence>{open && <motion.div initial={{ opacity: 0, y: -6, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -5 }} className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 shadow-2xl">{[['profile', Eye, 'View Profile'], ['id', Badge, 'Employee ID'], ['edit', Pencil, 'Edit Details'], ['status', UserRound, 'Change Status'], ['terminate', UserX, 'Terminate'], ['delete', Trash2, 'Delete Record']].map(([mode, Icon, label]) => <button key={String(mode)} onClick={() => { setOpen(false); onAction(mode as CardProps['onAction'] extends (m: infer M) => void ? M : never); }} className={cn('flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium hover:bg-slate-50', mode === 'terminate' || mode === 'delete' ? 'text-red-600' : 'text-slate-600')}><Icon className="h-4 w-4"/>{label as string}</button>)}</motion.div>}</AnimatePresence>;
+  if (list) return <article className="relative flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center"><div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 font-bold text-indigo-700">{initialsFor(employee.name)}</div><div className="min-w-0 flex-1"><h3 className="font-bold text-slate-950">{employee.name}</h3><p className="text-sm text-slate-500">{employee.position} · {employee.department}</p></div><p className="truncate text-sm text-slate-500">{employee.email}</p><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">{statusLabel(employee.status)}</span><button onClick={() => onAction('profile')} className="font-bold text-indigo-600">View Profile</button><div ref={ref} className="relative"><button onClick={() => setOpen(!open)} title="Employee actions" className="rounded-lg p-2 text-slate-400 hover:bg-slate-50"><MoreVertical/></button>{menu}</div></article>;
+  return <article className="relative rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="p-6"><div className="mb-6 flex items-start justify-between">{employee.profile_photo ? <img alt={employee.name} src={employee.profile_photo} className="h-16 w-16 rounded-xl object-cover"/> : <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-indigo-100 text-lg font-bold text-indigo-700">{initialsFor(employee.name)}</div>}<div ref={ref} className="relative"><button onClick={() => setOpen(!open)} title="Employee actions" aria-expanded={open} className="rounded-lg p-1 text-slate-400 hover:bg-slate-50"><MoreVertical/></button>{menu}</div></div><h3 className="text-xl font-bold text-slate-950">{employee.name}</h3><p className="mt-1 text-sm text-slate-500">{employee.position || 'Unassigned'}</p><div className="mt-5 space-y-3 text-sm text-slate-600"><p className="flex gap-3"><Briefcase className="h-4 w-4"/>{employee.department || 'No department'}</p><p className="flex gap-3 break-all"><Mail className="h-4 w-4 shrink-0"/>{employee.email || 'No email'}</p><p className="flex gap-3"><Calendar className="h-4 w-4"/>Joined {employee.hire_date || 'Unknown'}</p></div></div><div className="flex items-center justify-between rounded-b-2xl border-t border-slate-100 bg-slate-50 px-6 py-4"><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">{statusLabel(employee.status)}</span><button onClick={() => onAction('profile')} className="text-sm font-bold text-indigo-600">View Profile</button></div></article>;
+}
 
-      {employees.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center font-semibold text-slate-500">
-          {emptyMessage}
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {employees.map((employee) => (
-            <EmployeeCard employee={employee} key={employee.id} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+export default function EmployeesPage({ onNavigate }: { onNavigate: (tab: string) => void }) {
+  const [employees, setEmployees] = useState<EmployeeListItem[]>([]); const [departments, setDepartments] = useState<Department[]>([]); const [search, setSearch] = useState(''); const [status, setStatus] = useState(''); const [departmentId, setDepartmentId] = useState(0); const [view, setView] = useState<'grid' | 'list'>('grid'); const [filtersOpen, setFiltersOpen] = useState(false); const [dialog, setDialog] = useState<{ id: number; mode: 'profile' | 'id' | 'edit' | 'status' } | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [refresh, setRefresh] = useState(0);
+  useEffect(() => { getDepartments().then(setDepartments).catch(() => undefined); }, []);
+  useEffect(() => { const timer = setTimeout(() => { setLoading(true); setError(''); getEmployees({ search, status, department_id: departmentId || undefined, per_page: 100 }).then((result) => setEmployees(result.items)).catch((err) => setError(err instanceof Error ? err.message : 'Unable to load employees.')).finally(() => setLoading(false)); }, 250); return () => clearTimeout(timer); }, [search, status, departmentId, refresh]);
+  const action = async (employee: EmployeeListItem, mode: 'profile' | 'id' | 'edit' | 'status' | 'terminate' | 'delete') => { if (mode === 'terminate') { if (window.confirm(`Terminate ${employee.name}?`)) { await updateEmployee(employee.id, { employment_status: 'terminated' }); setRefresh((value) => value + 1); } return; } if (mode === 'delete') { if (window.confirm(`Permanently remove ${employee.name} from the directory?`)) { await deleteEmployee(employee.id); setRefresh((value) => value + 1); } return; } setDialog({ id: employee.id, mode }); };
+  const emptyMessage = useMemo(() => loading ? 'Loading employees...' : error || 'No employees match these filters.', [loading, error]);
+  return <div className="mx-auto max-w-7xl space-y-7"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-3xl font-bold text-slate-950">Employee Directory</h2><p className="mt-2 text-lg text-slate-500">Manage and view all team members in one place.</p></div><button onClick={() => onNavigate('add-employee')} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 font-bold text-white"><Plus/>Add New Employee</button></div><div className="rounded-3xl bg-white p-3"><div className="flex flex-col gap-3 sm:flex-row"><div className="flex h-14 flex-1 items-center gap-3 rounded-2xl bg-slate-50 px-5"><Search className="text-slate-400"/><input value={search} onChange={(event) => setSearch(event.target.value)} className="h-full flex-1 bg-transparent text-sm text-slate-700 outline-none" placeholder="Search by Employee name, id, role and department"/></div><div className="flex gap-2"><div className="flex rounded-2xl bg-slate-50 p-1"><button title="Grid view" onClick={() => setView('grid')} className={cn('flex h-11 w-11 items-center justify-center rounded-xl', view === 'grid' && 'bg-white text-indigo-600 shadow-sm')}><Grid2X2/></button><button title="List view" onClick={() => setView('list')} className={cn('flex h-11 w-11 items-center justify-center rounded-xl', view === 'list' && 'bg-white text-indigo-600 shadow-sm')}><List/></button></div><button onClick={() => setFiltersOpen(!filtersOpen)} className={cn('flex h-12 items-center gap-2 rounded-2xl bg-slate-50 px-5 font-bold text-slate-600', filtersOpen && 'text-indigo-600')}><SlidersHorizontal className="h-4 w-4"/>Filter</button></div></div><AnimatePresence>{filtersOpen && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden"><div className="grid gap-3 border-t border-slate-100 px-2 pt-4 sm:grid-cols-2"><select value={status} onChange={(event) => setStatus(event.target.value)} className="h-12 rounded-xl border border-slate-200 bg-slate-50 px-4"><option value="">All statuses</option>{statusOptions.map((item) => <option key={item} value={item}>{statusLabel(item)}</option>)}</select><select value={departmentId} onChange={(event) => setDepartmentId(Number(event.target.value))} className="h-12 rounded-xl border border-slate-200 bg-slate-50 px-4"><option value={0}>All departments</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}</select></div></motion.div>}</AnimatePresence></div>{employees.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center font-semibold text-slate-500">{emptyMessage}</div> : <motion.div layout className={view === 'grid' ? 'grid gap-6 md:grid-cols-2 xl:grid-cols-4' : 'space-y-3'}>{employees.map((employee) => <EmployeeCard key={employee.id} employee={employee} list={view === 'list'} onAction={(mode) => action(employee, mode)}/>)}</motion.div>}<AnimatePresence>{dialog && <EmployeeDialog employeeId={dialog.id} mode={dialog.mode} onClose={() => setDialog(null)} onChanged={() => setRefresh((value) => value + 1)}/>}</AnimatePresence></div>;
 }

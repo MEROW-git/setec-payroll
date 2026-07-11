@@ -46,6 +46,10 @@ class BaseConfig:
     SQLALCHEMY_DATABASE_URI = database_url()
     SQLALCHEMY_ENGINE_OPTIONS = engine_options()
     CORS_ORIGINS = cors_origins()
+    CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "")
+    CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "")
+    CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "")
+    MAX_CONTENT_LENGTH = 6 * 1024 * 1024
 
 
 class DevelopmentConfig(BaseConfig):

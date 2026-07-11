@@ -8,6 +8,8 @@ from app.api.v1.employees.repository import (
     get_last_employee_id,
     get_position_by_id,
     list_employees,
+    soft_delete_employee,
+    update_employee,
 )
 from app.api.v1.employees.schemas import serialize_employee, serialize_employee_list
 from app.common.pagination import pagination_meta
@@ -21,6 +23,30 @@ def get_employee_directory(params: dict) -> dict:
         total=pagination.total,
     )
     return serialize_employee_list(items=pagination.items, meta=meta)
+
+
+def get_employee_record(employee_id: int) -> dict | None:
+    employee = get_employee_by_id(employee_id)
+    return serialize_employee(employee) if employee else None
+
+
+def update_employee_record(employee_id: int, data: dict) -> tuple[dict | None, dict | None]:
+    employee = get_employee_by_id(employee_id)
+    if not employee:
+        return None, {"employee": ["Employee was not found."]}
+    if "work_email" in data:
+        existing = get_employee_by_work_email(data["work_email"])
+        if existing and existing.id != employee.id:
+            return None, {"work_email": ["An employee with this email already exists."]}
+    return serialize_employee(update_employee(employee, data)), None
+
+
+def delete_employee_record(employee_id: int) -> bool:
+    employee = get_employee_by_id(employee_id)
+    if not employee:
+        return False
+    soft_delete_employee(employee)
+    return True
 
 
 def create_employee_record(data: dict) -> tuple[dict | None, dict | None]:
