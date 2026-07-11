@@ -12,15 +12,18 @@ import {
   Users,
 } from 'lucide-react';
 import { AuthUser } from '../lib/api';
+import { getProfileOverview, ProfileOverview } from '../lib/api';
 import { cn } from '../lib/utils';
+import { useEffect, useState } from 'react';
 
 type ProfilePageProps = {
   user: AuthUser | null;
+  onNavigate: (path:string)=>void;
 };
 
 const quickActions = [
   { label: 'Employee Info', icon: User, color: 'bg-blue-500' },
-  { label: 'Status', icon: HeartPulse, color: 'bg-emerald-500' },
+  { label: 'Status', icon: HeartPulse, color: 'bg-emerald-500', path: 'profile/status' },
   { label: 'Bank Info', icon: CreditCard, color: 'bg-violet-500' },
   { label: 'Family', icon: Users, color: 'bg-pink-500' },
   { label: 'Education', icon: GraduationCap, color: 'bg-indigo-500' },
@@ -53,10 +56,17 @@ function EmptyPanel({ title }: { title: string }) {
   );
 }
 
-export default function ProfilePage({ user }: ProfilePageProps) {
-  const displayName = user?.name ?? 'User';
-  const role = user?.role ?? 'User';
+export default function ProfilePage({ user, onNavigate }: ProfilePageProps) {
+  const [profile,setProfile]=useState<ProfileOverview|null>(null);const[loading,setLoading]=useState(true);const[error,setError]=useState('');
+  useEffect(()=>{getProfileOverview().then(setProfile).catch(e=>setError(e instanceof Error?e.message:'Unable to load profile.')).finally(()=>setLoading(false));},[]);
+  const displayName = profile?.employee?.name ?? profile?.account.name ?? user?.name ?? 'User';
+  const role = profile?.employee?.position ?? profile?.account.role ?? user?.role ?? 'User';
   const initials = initialsFor(displayName) || 'US';
+  const employee=profile?.employee;const stats=profile?.stats;
+  const money=(value:number)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(value);
+
+  if(loading)return <div className="p-20 text-center text-slate-500">Loading profile...</div>;
+  if(error)return <div className="rounded-2xl bg-red-50 p-8 text-center text-red-700">{error}</div>;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -76,13 +86,13 @@ export default function ProfilePage({ user }: ProfilePageProps) {
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-3xl font-bold text-slate-950">{displayName}</h2>
-              <span className="rounded-full bg-indigo-600 px-4 py-1 text-xs font-bold text-white">Active User</span>
+              <span className="rounded-full bg-indigo-600 px-4 py-1 text-xs font-bold text-white">{employee?`${employee.status} Employee`:'Active Account'}</span>
             </div>
             <div className="mt-5 grid gap-4 text-sm font-medium text-slate-500 md:grid-cols-4">
               <span>{role}</span>
-              <span>{user?.email ?? 'No email'}</span>
-              <span>Joined: Not available</span>
-              <span>User ID: {user?.id ?? '-'}</span>
+              <span>{employee?.department??profile?.account.email??user?.email??'No email'}</span>
+              <span>Joined: {employee?.hire_date??profile?.account.created_at.slice(0,10)??'Not available'}</span>
+              <span>{employee?`Employee ID: ${employee.employee_code}`:`User ID: ${profile?.account.id??user?.id??'-'}`}</span>
             </div>
           </div>
         </div>
@@ -90,10 +100,10 @@ export default function ProfilePage({ user }: ProfilePageProps) {
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { title: 'Leave Balance', value: 'No data', note: 'Connect leave records', icon: Calendar, color: 'bg-emerald-500', noteColor: 'text-slate-400' },
-          { title: 'Attendance', value: 'No data', note: 'Connect attendance', icon: HeartPulse, color: 'bg-blue-500', noteColor: 'text-slate-400' },
-          { title: 'Current Salary', value: 'No data', note: 'Connect payroll', icon: CreditCard, color: 'bg-violet-500', noteColor: 'text-slate-400' },
-          { title: 'Performance', value: 'No data', note: 'Connect reviews', icon: Star, color: 'bg-orange-500', noteColor: 'text-slate-400' },
+          { title: 'Leave Balance', value: stats?.leave_balance!=null?`${stats.leave_balance} Days`:'Not linked', note: employee?'Annual leave remaining':'Employee record required', icon: Calendar, color: 'bg-emerald-500', noteColor: 'text-slate-400' },
+          { title: 'Attendance', value: stats?.attendance!=null?`${stats.attendance}%`:'Not linked', note: employee?'Current month':'Employee record required', icon: HeartPulse, color: 'bg-blue-500', noteColor: 'text-slate-400' },
+          { title: 'Current Salary', value: stats?.salary!=null?money(stats.salary):'Restricted', note: employee?'Latest payroll or base salary':'Employee record required', icon: CreditCard, color: 'bg-violet-500', noteColor: 'text-slate-400' },
+          { title: 'Performance', value: stats?.performance!=null?`${stats.performance}/5`:'No review', note: employee?'Latest completed review':'Employee record required', icon: Star, color: 'bg-orange-500', noteColor: 'text-slate-400' },
         ].map((card) => {
           const Icon = card.icon;
           return (
@@ -121,6 +131,9 @@ export default function ProfilePage({ user }: ProfilePageProps) {
             return (
               <button
                 key={action.label}
+                onClick={()=>action.path&&onNavigate(action.path)}
+                disabled={!action.path}
+                title={action.path?`Open ${action.label}`:`${action.label} details are not connected yet`}
                 className="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white p-4 transition hover:-translate-y-1 hover:border-indigo-100 hover:shadow-md"
               >
                 <div className={cn('mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-white', action.color)}>

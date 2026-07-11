@@ -25,9 +25,11 @@ import PayrollUtilityPage from './components/PayrollUtilityPage';
 import ReportsPage from './components/ReportsPage';
 import PerformancePage from './components/PerformancePage';
 import SettingsPage from './components/SettingsPage';
+import ProfileStatusPage from './components/ProfileStatusPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
+import { applyAppearance, readLocalAppearance, watchSystemTheme } from './lib/theme';
 
 type UserRole = 'admin' | 'employee';
 
@@ -56,14 +58,8 @@ function App() {
   const userRole = roleFromUser(authUser);
 
   useEffect(() => {
-    try {
-      const appearance = JSON.parse(localStorage.getItem('appearance') ?? '{}');
-      const dark = appearance.theme === 'dark' || (appearance.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-      document.documentElement.dataset.density = appearance.density === 'compact' ? 'compact' : 'comfortable';
-    } catch {
-      document.documentElement.dataset.theme = 'light';
-    }
+    applyAppearance(readLocalAppearance() ?? { theme: 'system', density: 'comfortable' }, false);
+    const stopWatchingTheme = watchSystemTheme();
 
     const verifySession = async () => {
       const savedToken = localStorage.getItem('access_token');
@@ -113,7 +109,10 @@ function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      stopWatchingTheme();
+    };
   }, []);
 
   const navigateTo = (tab: string) => {
@@ -173,7 +172,9 @@ function App() {
       case 'add-employee':
         return <AddEmployeePage onNavigate={navigateTo} />;
       case 'profile':
-        return <ProfilePage user={authUser} />;
+        return <ProfilePage user={authUser} onNavigate={navigateTo} />;
+      case 'profile/status':
+        return <ProfileStatusPage onNavigate={navigateTo} />;
       case 'roles':
         return <RolesPage onNavigate={navigateTo} />;
       case 'roles/new':

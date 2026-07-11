@@ -4,9 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (() => {
+        try {
+          const saved = JSON.parse(localStorage.getItem('appearance') || 'null');
+          const preference = saved && ['light', 'dark', 'system'].includes(saved.theme) ? saved.theme : 'system';
+          const density = saved && ['comfortable', 'compact'].includes(saved.density) ? saved.density : 'comfortable';
+          const dark = preference === 'dark' || (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          document.documentElement.dataset.themePreference = preference;
+          document.documentElement.dataset.density = density;
+        } catch (_) {
+          document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+      })();
+    </script>
     <title>Human Resource Management</title>
-    <script type="module" crossorigin src="/assets/index-C7Kpzl0i.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DfunrUG9.css">
+    <script type="module" crossorigin src="/assets/index-vVhbk0zg.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Cb__Yy43.css">
   </head>
   <body>
     <div id="root"></div>

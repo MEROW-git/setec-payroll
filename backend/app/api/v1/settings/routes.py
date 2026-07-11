@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 
 from app.api.v1.settings import validators
-from app.api.v1.settings.service import change_password, get_settings, update_appearance, update_notifications, update_profile
+from app.api.v1.settings.service import change_password, get_settings, profile_overview, update_appearance, update_notifications, update_profile
 from app.common.decorators import roles_required
 from app.common.responses import error_response, success_response
 
@@ -12,6 +12,11 @@ settings_bp = Blueprint("settings", __name__)
 @settings_bp.get("/")
 @roles_required()
 def read(): return success_response(get_settings(int(get_jwt_identity())), "Settings loaded")
+
+
+@settings_bp.get("/profile-overview")
+@roles_required()
+def overview(): return success_response(profile_overview(int(get_jwt_identity())), "Profile loaded")
 
 
 def validated_update(validator, handler, message):
