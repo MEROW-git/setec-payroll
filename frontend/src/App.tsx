@@ -12,6 +12,9 @@ import CreateDepartmentPage from './components/CreateDepartmentPage';
 import AttendancePage from './components/AttendancePage';
 import AttendancePolicyPage from './components/AttendancePolicyPage';
 import ShiftPage from './components/ShiftPage';
+import LeavePage from './components/LeavePage';
+import LeaveSettingsPage from './components/LeaveSettingsPage';
+import LeaveConfigPage from './components/LeaveConfigPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -162,7 +165,14 @@ function App() {
         return <AttendancePolicyPage onNavigate={navigateTo} />;
       case 'shift':
         return <ShiftPage />;
+      case 'leave':
+        return <LeavePage onNavigate={navigateTo} />;
+      case 'leave/settings':
+        return <LeaveSettingsPage onNavigate={navigateTo} />;
       default:
+        if (activeTab.startsWith('leave/settings/')) {
+          return <LeaveConfigPage kind={activeTab.split('/')[2]} onNavigate={navigateTo} />;
+        }
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">

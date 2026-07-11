@@ -9,6 +9,8 @@ class LeaveType(BaseModel, SoftDeleteMixin):
     name = db.Column(db.String(100), unique=True, nullable=False)
     code = db.Column(db.String(30), unique=True, nullable=False)
     description = db.Column(db.Text)
+    count_type = db.Column(db.String(30), default="daily", nullable=False)
+    special_types = db.Column(db.JSON)
     days_per_year = db.Column(db.Numeric(5, 2), default=0, nullable=False)
     is_paid = db.Column(db.Boolean, default=True, nullable=False)
     requires_attachment = db.Column(db.Boolean, default=False, nullable=False)

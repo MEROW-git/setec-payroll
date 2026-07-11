@@ -10,6 +10,7 @@ from app.models.employee_salary_component import EmployeeSalaryComponent
 from app.models.holiday import Holiday
 from app.models.job_opening import JobOpening
 from app.models.leave_request import LeaveRequest
+from app.models.leave_configuration import LeaveGroup, LeavePolicy, LeaveYear
 from app.models.leave_type import LeaveType
 from app.models.payroll import Payroll
 from app.models.payroll_period import PayrollPeriod
@@ -33,6 +34,9 @@ __all__ = [
     "Holiday",
     "JobOpening",
     "LeaveRequest",
+    "LeaveYear",
+    "LeaveGroup",
+    "LeavePolicy",
     "LeaveType",
     "Payroll",
     "PayrollPeriod",

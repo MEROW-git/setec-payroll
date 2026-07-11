@@ -208,6 +208,9 @@ export type ShiftItem = { id: number; name: string; start_time: string; end_time
 export type ShiftManagement = { items: ShiftItem[]; stats: { active: number; inactive: number; employees: number } };
 export type ShiftRequestItem = { id: number; request_type: 'swap' | 'change'; request_date: string; requester_id: number; requester_name: string; current_shift_id: number; current_shift: string; target_employee_id: number | null; target_employee_name: string | null; new_shift_id: number | null; new_shift: string | null; remarks: string | null; status: string; created_at: string };
 export type ShiftRequestsResult = { items: ShiftRequestItem[]; pending_count: number };
+export type LeaveRequestItem = { id:number;employee_id:number;employee_name:string;leave_type_id:number;leave_type:string;start_date:string;end_date:string;total_days:number;reason:string|null;status:string;reviewer_note:string|null };
+export type LeaveDashboard = { items:LeaveRequestItem[];stats:{pending:number;approved:number;rejected:number;on_leave_today:number} };
+export type LeaveTypeItem = {id:number;name:string;code:string;days_per_year:number;is_paid:boolean;count_type:string;special_types:string[]};
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
@@ -357,3 +360,9 @@ export function createShift(payload: { name: string; start_time: string; end_tim
 export function getShiftRequests(search = '') { const query = search ? `?search=${encodeURIComponent(search)}` : ''; return request<ShiftRequestsResult>(`/api/v1/shifts/requests${query}`); }
 export function createShiftRequest(payload: { request_type: string; request_date: string; requester_id: number; current_shift_id: number; target_employee_id?: number; new_shift_id?: number; remarks?: string }) { return request<ShiftRequestItem>('/api/v1/shifts/requests', { method: 'POST', body: JSON.stringify(payload) }); }
 export function reviewShiftRequest(requestId: number, status: 'approved' | 'rejected') { return request<ShiftRequestItem>(`/api/v1/shifts/requests/${requestId}`, { method: 'PATCH', body: JSON.stringify({ status }) }); }
+export function getLeaveRequests(search=''){const query=search?`?search=${encodeURIComponent(search)}`:'';return request<LeaveDashboard>(`/api/v1/leave/${query}`);}
+export function createLeaveRequest(payload:{employee_id:number;leave_type_id:number;start_date:string;end_date:string;reason?:string}){return request<LeaveRequestItem>('/api/v1/leave/',{method:'POST',body:JSON.stringify(payload)});}
+export function reviewLeaveRequest(id:number,status:'approved'|'rejected'){return request<LeaveRequestItem>(`/api/v1/leave/${id}`,{method:'PATCH',body:JSON.stringify({status})});}
+export function getLeaveSettingsSummary(){return request<{active_policies:number;upcoming_holidays:number;pending_adjustments:number}>('/api/v1/leave/settings/summary');}
+export function getLeaveConfig<T=Record<string,unknown>>(kind:string){return request<T[]>(`/api/v1/leave/config/${kind}`);}
+export function createLeaveConfig<T=Record<string,unknown>>(kind:string,payload:Record<string,unknown>){return request<T>(`/api/v1/leave/config/${kind}`,{method:'POST',body:JSON.stringify(payload)});}
