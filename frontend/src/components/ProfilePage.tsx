@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   Briefcase,
   Calendar,
   Contact,
@@ -6,10 +7,15 @@ import {
   FileText,
   GraduationCap,
   HeartPulse,
+  Mail,
+  MapPin,
+  Phone,
+  Printer,
   Shield,
   Star,
   User,
   Users,
+  X,
 } from 'lucide-react';
 import { AuthUser } from '../lib/api';
 import { getProfileOverview, ProfileOverview } from '../lib/api';
@@ -34,6 +40,7 @@ const quickActions = [
   { label: 'Payroll', icon: CreditCard, color: 'bg-green-600', path: 'profile/payroll' },
   { label: 'Performance', icon: Star, color: 'bg-indigo-600', path: 'profile/performance' },
   { label: 'Security', icon: Shield, color: 'bg-slate-900', path: 'settings' },
+  { label: 'Employee ID', icon: BadgeCheck, color: 'bg-slate-950', path: 'employee-id' },
 ];
 
 function initialsFor(name: string) {
@@ -58,7 +65,9 @@ function EmptyPanel({ title }: { title: string }) {
 
 export default function ProfilePage({ user, onNavigate }: ProfilePageProps) {
   const [profile,setProfile]=useState<ProfileOverview|null>(null);const[loading,setLoading]=useState(true);const[error,setError]=useState('');
+  const [showEmployeeId,setShowEmployeeId]=useState(false);
   useEffect(()=>{getProfileOverview().then(setProfile).catch(e=>setError(e instanceof Error?e.message:'Unable to load profile.')).finally(()=>setLoading(false));},[]);
+  useEffect(()=>{if(!showEmployeeId)return;const close=(event:KeyboardEvent)=>{if(event.key==='Escape')setShowEmployeeId(false)};document.addEventListener('keydown',close);document.body.style.overflow='hidden';return()=>{document.removeEventListener('keydown',close);document.body.style.overflow=''}},[showEmployeeId]);
   const displayName = profile?.employee?.name ?? profile?.account.name ?? user?.name ?? 'User';
   const role = profile?.employee?.position ?? profile?.account.role ?? user?.role ?? 'User';
   const initials = initialsFor(displayName) || 'US';
@@ -131,7 +140,7 @@ export default function ProfilePage({ user, onNavigate }: ProfilePageProps) {
             return (
               <button
                 key={action.label}
-                onClick={()=>action.path&&onNavigate(action.path)}
+                onClick={()=>action.path==='employee-id'?setShowEmployeeId(true):onNavigate(action.path)}
                 title={`Open ${action.label}`}
                 className="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white p-4 transition hover:-translate-y-1 hover:border-indigo-100 hover:shadow-md"
               >
@@ -151,6 +160,45 @@ export default function ProfilePage({ user, onNavigate }: ProfilePageProps) {
       </div>
 
       <EmptyPanel title="Upcoming Events & Schedule" />
+
+      {showEmployeeId&&(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" onMouseDown={(event)=>{if(event.target===event.currentTarget)setShowEmployeeId(false)}}>
+          <section role="dialog" aria-modal="true" aria-labelledby="employee-id-title" className="employee-id-modal max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-slate-50 shadow-2xl">
+            <header className="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5 sm:px-8">
+              <div className="flex min-w-0 items-center gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white"><BadgeCheck className="h-6 w-6"/></span>
+                <div><h2 id="employee-id-title" className="text-xl font-bold text-slate-950">Official Employee ID</h2><p className="text-sm text-slate-500">Print-ready identity card</p></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={()=>window.print()} className="employee-id-print flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-bold text-white shadow-lg shadow-indigo-200"><Printer className="h-4 w-4"/>Print ID Card</button>
+                <button onClick={()=>setShowEmployeeId(false)} aria-label="Close employee ID" className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X className="h-5 w-5"/></button>
+              </div>
+            </header>
+            <div className="employee-id-print-area grid gap-8 p-7 sm:p-10 md:grid-cols-2">
+              <article className="relative mx-auto flex aspect-[0.64] w-full max-w-[350px] flex-col overflow-hidden rounded-[28px] bg-white shadow-xl">
+                <div className="flex h-[36%] flex-col items-center bg-indigo-600 px-6 pt-8 text-white">
+                  <BadgeCheck className="h-9 w-9"/><p className="mt-5 text-lg font-black uppercase tracking-widest">Siegecode HRM</p><p className="text-[10px] font-bold uppercase tracking-widest text-indigo-100">Human Resource Division</p>
+                </div>
+                <div className="absolute left-1/2 top-[27%] flex h-32 w-32 -translate-x-1/2 items-center justify-center rounded-2xl border-8 border-white bg-indigo-100 text-4xl font-black text-indigo-600 shadow-lg">{initials}</div>
+                <div className="flex flex-1 flex-col px-8 pb-0 pt-24 text-center">
+                  <h3 className="text-2xl font-black uppercase text-slate-900">{displayName}</h3><p className="mt-1 font-bold text-indigo-600">{role}</p>
+                  <div className="mt-8 grid grid-cols-2 gap-3 text-left"><div className="rounded-xl bg-slate-50 p-3"><p className="text-[10px] font-bold uppercase text-slate-400">ID Number</p><p className="font-black text-slate-900">{employee?.employee_code??`USR-${profile?.account.id}`}</p></div><div className="rounded-xl bg-slate-50 p-3"><p className="text-[10px] font-bold uppercase text-slate-400">Status</p><p className="font-black text-emerald-600">{employee?.status??'Active'}</p></div></div>
+                  <div className="-mx-8 mt-auto bg-slate-950 px-8 py-7 text-left text-white"><p className="text-xs font-black uppercase tracking-wide">Official Badge</p><p className="mt-1 text-[9px] uppercase text-slate-400">Valid while account is active</p></div>
+                </div>
+              </article>
+              <article className="mx-auto flex aspect-[0.64] w-full max-w-[350px] flex-col rounded-[28px] bg-slate-950 p-8 text-slate-300 shadow-xl">
+                <div><p className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-indigo-400"><Shield className="h-4 w-4"/>Security Information</p><p className="mt-5 text-sm leading-6 text-slate-400">This card identifies an authorized Siegecode HRM account holder. If found, return it to the issuing organization.</p></div>
+                <div className="mt-9 space-y-5">
+                  <div className="flex gap-3"><Phone className="mt-1 h-5 w-5 shrink-0 text-indigo-400"/><div><p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Emergency Contact</p><p className="font-bold text-white">{employee?.emergency_contact_phone??'Not provided'}</p></div></div>
+                  <div className="flex gap-3"><Mail className="mt-1 h-5 w-5 shrink-0 text-indigo-400"/><div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Office Email</p><p className="break-all font-bold text-white">{employee?.email??profile?.account.email}</p></div></div>
+                  <div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 shrink-0 text-indigo-400"/><div><p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Department</p><p className="font-bold text-white">{employee?.department??'Account administration'}</p></div></div>
+                </div>
+                <div className="mt-auto border-t border-slate-800 pt-7 text-center"><p className="font-black italic tracking-wider text-indigo-400">SIEGECODE HRM</p><p className="mt-1 text-[9px] uppercase tracking-widest text-slate-600">Verified workforce identity</p></div>
+              </article>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

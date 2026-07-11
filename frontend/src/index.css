@@ -21,6 +21,40 @@
   color-scheme: light;
 }
 
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .employee-id-modal,
+  .employee-id-modal * {
+    visibility: visible !important;
+  }
+
+  .employee-id-modal {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .employee-id-modal > header,
+  .employee-id-print {
+    display: none !important;
+  }
+
+  .employee-id-print-area {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+    padding: 24px;
+  }
+}
+
 html[data-theme="dark"] {
   --theme-page: #0f172a;
   --theme-surface: #172033;
