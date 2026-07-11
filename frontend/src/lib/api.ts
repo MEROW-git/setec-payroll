@@ -204,6 +204,11 @@ export type AttendancePolicy = {
   is_active: boolean;
 };
 
+export type ShiftItem = { id: number; name: string; start_time: string; end_time: string; shift_type: string; status: string; notes: string | null; employee_count: number };
+export type ShiftManagement = { items: ShiftItem[]; stats: { active: number; inactive: number; employees: number } };
+export type ShiftRequestItem = { id: number; request_type: 'swap' | 'change'; request_date: string; requester_id: number; requester_name: string; current_shift_id: number; current_shift: string; target_employee_id: number | null; target_employee_name: string | null; new_shift_id: number | null; new_shift: string | null; remarks: string | null; status: string; created_at: string };
+export type ShiftRequestsResult = { items: ShiftRequestItem[]; pending_count: number };
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -346,3 +351,9 @@ export function getAttendancePolicies() {
 export function createAttendancePolicy(payload: { name: string; count_type: string; considerable_value: number; adjusted_days: number; description?: string }) {
   return request<AttendancePolicy>('/api/v1/attendance/policies', { method: 'POST', body: JSON.stringify(payload) });
 }
+
+export function getShifts(search = '') { const query = search ? `?search=${encodeURIComponent(search)}` : ''; return request<ShiftManagement>(`/api/v1/shifts/${query}`); }
+export function createShift(payload: { name: string; start_time: string; end_time: string; shift_type: string; status: string; notes?: string }) { return request<ShiftItem>('/api/v1/shifts/', { method: 'POST', body: JSON.stringify(payload) }); }
+export function getShiftRequests(search = '') { const query = search ? `?search=${encodeURIComponent(search)}` : ''; return request<ShiftRequestsResult>(`/api/v1/shifts/requests${query}`); }
+export function createShiftRequest(payload: { request_type: string; request_date: string; requester_id: number; current_shift_id: number; target_employee_id?: number; new_shift_id?: number; remarks?: string }) { return request<ShiftRequestItem>('/api/v1/shifts/requests', { method: 'POST', body: JSON.stringify(payload) }); }
+export function reviewShiftRequest(requestId: number, status: 'approved' | 'rejected') { return request<ShiftRequestItem>(`/api/v1/shifts/requests/${requestId}`, { method: 'PATCH', body: JSON.stringify({ status }) }); }

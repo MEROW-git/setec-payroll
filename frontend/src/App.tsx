@@ -11,6 +11,7 @@ import CreateRolePage from './components/CreateRolePage';
 import CreateDepartmentPage from './components/CreateDepartmentPage';
 import AttendancePage from './components/AttendancePage';
 import AttendancePolicyPage from './components/AttendancePolicyPage';
+import ShiftPage from './components/ShiftPage';
 import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
@@ -159,6 +160,8 @@ function App() {
         return <AttendancePage onNavigate={navigateTo} />;
       case 'attendance/policy':
         return <AttendancePolicyPage onNavigate={navigateTo} />;
+      case 'shift':
+        return <ShiftPage />;
       default:
         return (
           <div className="flex items-center justify-center h-full">

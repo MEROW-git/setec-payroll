@@ -17,6 +17,7 @@ from app.models.performance_review import PerformanceReview
 from app.models.position import Position
 from app.models.role import Role
 from app.models.salary_component import SalaryComponent
+from app.models.shift import EmployeeShiftAssignment, Shift, ShiftRequest
 from app.models.user import User
 
 __all__ = [
@@ -39,5 +40,8 @@ __all__ = [
     "Position",
     "Role",
     "SalaryComponent",
+    "Shift",
+    "ShiftRequest",
+    "EmployeeShiftAssignment",
     "User",
 ]
