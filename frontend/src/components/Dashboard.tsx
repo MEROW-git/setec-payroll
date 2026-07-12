@@ -25,8 +25,9 @@ import {
 } from 'recharts';
 import { DashboardStats, getDashboardStats } from '../lib/api';
 import { cn } from '../lib/utils';
+import { useTranslation } from 'react-i18next';
 
-const StatCard = ({ title, value, change, icon: Icon, trend, iconBg, iconColor }: any) => (
+const StatCard = ({ title, value, change, comparison, icon: Icon, trend, iconBg, iconColor }: any) => (
   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
     <div className="flex justify-between items-start mb-4">
       <div>
@@ -47,9 +48,7 @@ const StatCard = ({ title, value, change, icon: Icon, trend, iconBg, iconColor }
         {change}
       </span>
       <span className="text-slate-400 text-xs ml-1">
-        {title === 'Total Employees' ? 'vs last month' : 
-         title === 'Present Today' ? 'vs yesterday' :
-         title === 'On Leave' ? 'vs last week' : 'new today'}
+        {comparison}
       </span>
     </div>
   </div>
@@ -60,6 +59,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
+  const { t } = useTranslation('dashboard');
   const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
   const [error, setError] = useState('');
 
@@ -81,8 +81,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Dashboard Overview</h2>
-        <p className="text-slate-500 mt-1">Welcome back! Here's what's happening today.</p>
+        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{t('title')}</h2>
+        <p className="text-slate-500 mt-1">{t('welcome')}</p>
       </div>
 
       {error && (
@@ -94,7 +94,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Row 1: Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          title="Total Employees" 
+          title={t('totalEmployees')}
+          comparison={t('comparison.lastMonth')}
           value={stats.totalEmployees} 
           change="0%" 
           icon={Users} 
@@ -103,7 +104,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           iconColor="text-white"
         />
         <StatCard 
-          title="Present Today" 
+          title={t('presentToday')}
+          comparison={t('comparison.yesterday')}
           value={stats.presentToday} 
           change="0%" 
           icon={CheckCircle2} 
@@ -112,7 +114,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           iconColor="text-white"
         />
         <StatCard 
-          title="On Leave" 
+          title={t('onLeave')}
+          comparison={t('comparison.lastWeek')}
           value={stats.onLeave} 
           change="0%" 
           icon={Calendar} 
@@ -121,7 +124,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           iconColor="text-white"
         />
         <StatCard 
-          title="Pending Requests" 
+          title={t('pendingRequests')}
+          comparison={t('comparison.newToday')}
           value={stats.pendingRequests} 
           change="0%" 
           icon={Clock} 
@@ -134,11 +138,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Row 2: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Attendance Trends</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-6">{t('attendanceTrends')}</h3>
           <div className="h-[300px] w-full">
             {attendanceData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-400">
-                No attendance trend data yet.
+                {t('noTrend')}
               </div>
             ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -160,9 +164,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Legend verticalAlign="bottom" height={36}/>
-                <Line type="monotone" dataKey="present" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Present" />
-                <Line type="monotone" dataKey="absent" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Absent" />
-                <Line type="monotone" dataKey="onLeave" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name="On Leave" />
+                <Line type="monotone" dataKey="present" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name={t('chart.present')} />
+                <Line type="monotone" dataKey="absent" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name={t('chart.absent')} />
+                <Line type="monotone" dataKey="onLeave" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name={t('chart.onLeave')} />
               </LineChart>
             </ResponsiveContainer>
             )}
@@ -170,11 +174,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Department Distribution</h3>
+          <h3 className="text-lg font-bold text-slate-900 mb-6">{t('departmentDistribution')}</h3>
           <div className="h-[300px] w-full">
             {departmentData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-400">
-                No department data yet.
+                {t('noDepartmentData')}
               </div>
             ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -204,14 +208,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
       {/* Row 3: Quick Actions (Full Width) */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-900 mb-6">Quick Actions</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-6">{t('quickActions')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            { label: 'Add Employee', icon: UserPlus, color: 'bg-blue-500', onClick: () => onNavigate('add-employee') },
-            { label: 'Mark Attendance', icon: ClipboardCheck, color: 'bg-emerald-500', onClick: () => onNavigate('attendance') },
-            { label: 'Approve Leaves', icon: FileCheck, color: 'bg-purple-500', onClick: () => onNavigate('leave') },
-            { label: 'Events & Schedule', icon: Calendar, color: 'bg-pink-500', onClick: () => onNavigate('events-schedule') },
-            { label: 'View Calendar', icon: Calendar, color: 'bg-indigo-500', onClick: () => onNavigate('leave') },
+            { label: t('actions.addEmployee'), icon: UserPlus, color: 'bg-blue-500', onClick: () => onNavigate('add-employee') },
+            { label: t('actions.markAttendance'), icon: ClipboardCheck, color: 'bg-emerald-500', onClick: () => onNavigate('attendance') },
+            { label: t('actions.approveLeaves'), icon: FileCheck, color: 'bg-purple-500', onClick: () => onNavigate('leave') },
+            { label: t('actions.events'), icon: Calendar, color: 'bg-pink-500', onClick: () => onNavigate('events-schedule') },
+            { label: t('actions.viewCalendar'), icon: Calendar, color: 'bg-indigo-500', onClick: () => onNavigate('leave') },
           ].map((action) => (
             <button 
               key={action.label}

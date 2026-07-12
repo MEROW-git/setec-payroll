@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   activeTab: string;
@@ -24,29 +25,30 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarProps) {
+  const { t } = useTranslation('common');
   const adminNavItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'employees', label: 'Employees', icon: Users },
-    { id: 'roles', label: 'Roles', icon: Shield },
-    { id: 'departments', label: 'Departments', icon: Building2 },
-    { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
-    { id: 'shift', label: 'Shift', icon: Clock },
-    { id: 'leave', label: 'Leave Tracking', icon: Calendar },
-    { id: 'allowance-deduction', label: 'Allowance & Deduction', icon: Wallet },
-    { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
-    { id: 'payroll', label: 'Payroll', icon: CreditCard },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'performance', label: 'Performance', icon: BarChart3 },
+    { id: 'dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { id: 'employees', label: t('nav.employees'), icon: Users },
+    { id: 'roles', label: t('nav.roles'), icon: Shield },
+    { id: 'departments', label: t('nav.departments'), icon: Building2 },
+    { id: 'attendance', label: t('nav.attendance'), icon: ClipboardCheck },
+    { id: 'shift', label: t('nav.shift'), icon: Clock },
+    { id: 'leave', label: t('nav.leave'), icon: Calendar },
+    { id: 'allowance-deduction', label: t('nav.adjustments'), icon: Wallet },
+    { id: 'events-schedule', label: t('nav.events'), icon: CalendarClock },
+    { id: 'payroll', label: t('nav.payroll'), icon: CreditCard },
+    { id: 'reports', label: t('nav.reports'), icon: FileText },
+    { id: 'performance', label: t('nav.performance'), icon: BarChart3 },
   ];
 
   const employeeNavItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
-    { id: 'shift', label: 'Shift', icon: Clock },
-    { id: 'leave', label: 'Leave Tracking', icon: Calendar },
-    { id: 'allowance-deduction', label: 'Allowance & Deduction', icon: Wallet },
-    { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { id: 'attendance', label: t('nav.attendance'), icon: ClipboardCheck },
+    { id: 'shift', label: t('nav.shift'), icon: Clock },
+    { id: 'leave', label: t('nav.leave'), icon: Calendar },
+    { id: 'allowance-deduction', label: t('nav.adjustments'), icon: Wallet },
+    { id: 'events-schedule', label: t('nav.events'), icon: CalendarClock },
+    { id: 'reports', label: t('nav.reports'), icon: FileText },
   ];
 
   const navItems = userRole === 'employee' ? employeeNavItems : adminNavItems;
@@ -57,7 +59,7 @@ export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarPr
         <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
           SH
         </div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Siegecode HRM</h1>
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">{t('app.name')}</h1>
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
@@ -106,7 +108,7 @@ export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarPr
             "w-5 h-5 transition-colors",
             activeTab === 'settings' ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"
           )} />
-          <span className="font-medium">Settings</span>
+          <span className="font-medium">{t('nav.settings')}</span>
         </button>
       </div>
     </div>

@@ -32,6 +32,7 @@ import TopBar from './components/TopBar';
 import { AuthUser, getCurrentUser, login, logout } from './lib/api';
 import AddEmployeePage from './components/AddEmployeePage';
 import { applyAppearance, readLocalAppearance, watchSystemTheme } from './lib/theme';
+import { useTranslation } from 'react-i18next';
 
 type UserRole = 'admin' | 'employee';
 
@@ -49,6 +50,7 @@ function pathForTab(tab: string) {
 }
 
 function App() {
+  const { t } = useTranslation('auth');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -269,9 +271,9 @@ function App() {
                 <Lock className="h-8 w-8 text-blue-600" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold">Secure HR Management</h1>
+            <h1 className="text-4xl font-bold">{t('secureTitle')}</h1>
             <p className="mt-5 max-w-md text-xl leading-8 text-blue-50">
-              Your data is protected with enterprise-grade security. Sign in to manage your workforce efficiently.
+              {t('secureDescription')}
             </p>
           </div>
         </section>
@@ -283,21 +285,21 @@ function App() {
                 <UsersRound className="h-9 w-9" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-slate-950">Welcome Back</h2>
-                <p className="mt-2 text-lg text-slate-500">Please enter your details to sign in</p>
+                <h2 className="text-3xl font-bold text-slate-950">{t('title')}</h2>
+                <p className="mt-2 text-lg text-slate-500">{t('subtitle')}</p>
               </div>
             </div>
 
             <form onSubmit={handleLogin} className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/70">
               <label className="block">
-                <span className="text-sm font-bold text-slate-800">Email Address</span>
+                <span className="text-sm font-bold text-slate-800">{t('email')}</span>
                 <span className="mt-2 flex h-14 items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-slate-500">
                   <Mail className="h-5 w-5" />
                   <input
                     className="h-full flex-1 bg-transparent text-slate-950 outline-none"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
-                    placeholder="admin@example.com"
+                    placeholder={t('emailPlaceholder')}
                     type="email"
                     required
                   />
@@ -306,9 +308,9 @@ function App() {
 
               <label className="mt-6 block">
                 <span className="flex items-center justify-between text-sm font-bold text-slate-800">
-                  <span>Password</span>
+                  <span>{t('password')}</span>
                   <button type="button" className="text-xs font-bold text-blue-600">
-                    Forgot Password?
+                    {t('forgotPassword')}
                   </button>
                 </span>
                 <span className="mt-2 flex h-14 items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-slate-500">
@@ -317,7 +319,7 @@ function App() {
                     className="h-full flex-1 bg-transparent text-slate-950 outline-none"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={t('passwordPlaceholder')}
                     type="password"
                     required
                   />
@@ -335,13 +337,13 @@ function App() {
                 disabled={isLoggingIn}
                 className="mt-7 flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
               >
-                {isLoggingIn ? 'Signing In...' : 'Sign In'}
+                {isLoggingIn ? t('signingIn') : t('signIn')}
                 <ArrowRight className="h-5 w-5" />
               </button>
             </form>
 
             <p className="mt-9 text-center text-sm text-slate-500">
-              Don't have an account? <span className="font-bold text-blue-600">Contact HR</span>
+              {t('noAccount')} <span className="font-bold text-blue-600">{t('contactHr')}</span>
             </p>
           </div>
         </main>

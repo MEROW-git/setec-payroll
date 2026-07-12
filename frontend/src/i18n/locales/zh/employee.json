@@ -1,0 +1,1 @@
+{"directory":{"title":"员工目录","subtitle":"在一个地方管理和查看所有团队成员。","add":"添加新员工","search":"按员工姓名、编号、角色和部门搜索"},"name":"员工姓名","firstName":"名字","lastName":"姓氏","email":"工作邮箱","phone":"电话","position":"职位","department":"部门","joined":"入职日期","employeeId":"员工编号","profilePhoto":"头像","editDetails":"编辑员工资料","changeStatus":"更改状态","terminate":"终止雇佣","deleteRecord":"删除记录","officialId":"正式员工证"}
