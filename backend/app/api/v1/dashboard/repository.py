@@ -1,3 +1,4 @@
+from collections import Counter, defaultdict
 from datetime import date
 
 from sqlalchemy import func
@@ -32,6 +33,28 @@ def count_pending_leave_requests() -> int:
         LeaveRequest.deleted_at.is_(None),
         LeaveRequest.status == "pending",
     ).count()
+
+
+def get_attendance_trend() -> list[dict]:
+    today = date.today()
+    start = date(today.year, 1, 1)
+    records = Attendance.query.filter(
+        Attendance.attendance_date.between(start, today),
+    ).with_entities(Attendance.attendance_date, Attendance.status).all()
+
+    monthly = defaultdict(Counter)
+    for attendance_date, status in records:
+        monthly[attendance_date.month][status] += 1
+
+    return [
+        {
+            "name": date(today.year, month, 1).strftime("%b"),
+            "present": monthly[month]["present"],
+            "absent": monthly[month]["absent"],
+            "onLeave": monthly[month]["on_leave"],
+        }
+        for month in range(1, today.month + 1)
+    ]
 
 
 def get_department_distribution() -> list:

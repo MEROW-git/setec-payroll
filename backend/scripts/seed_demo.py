@@ -216,7 +216,7 @@ def ensure_leave(employees, admin):
 
 
 def ensure_payroll(employees, admin):
-    for month in range(1, 7):
+    for month in range(1, 8):
         start = date(2026, month, 1); end = date(2026, month, monthrange(2026, month)[1])
         period = PayrollPeriod.query.filter_by(start_date=start, end_date=end).first()
         if not period:
