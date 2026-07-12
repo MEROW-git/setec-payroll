@@ -327,29 +327,29 @@ export default function SettingsPage({
             )}
             {tab === "notifications" && (
               <>
-                <h3 className="text-xl font-bold">Notification Preferences</h3>
+                <h3 className="text-xl font-bold">{t("notifications.title")}</h3>
                 <div className="mt-6 space-y-4">
                   {(
                     [
                       [
                         "email",
-                        "Email Notifications",
-                        "Receive important alerts via email.",
+                        t("notifications.email"),
+                        t("notifications.emailDescription"),
                       ],
                       [
                         "push",
-                        "Push Notifications",
-                        "Get real-time updates in your browser.",
+                        t("notifications.push"),
+                        t("notifications.pushDescription"),
                       ],
                       [
                         "leave",
-                        "Leave Requests",
-                        "Notify when leave requests require attention.",
+                        t("notifications.leave"),
+                        t("notifications.leaveDescription"),
                       ],
                       [
                         "payroll",
-                        "Payroll Alerts",
-                        "Alert when payroll processing is complete.",
+                        t("notifications.payroll"),
+                        t("notifications.payrollDescription"),
                       ],
                     ] as const
                   ).map(([key, label, note]) => (
@@ -395,10 +395,10 @@ export default function SettingsPage({
               <>
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="h-6 w-6 text-indigo-600" />
-                  <h3 className="text-xl font-bold">Security Settings</h3>
+                  <h3 className="text-xl font-bold">{t("security.title")}</h3>
                 </div>
                 <div className="mt-7 space-y-5">
-                  <Field label="Current Password">
+                  <Field label={t("security.currentPassword")}>
                     <input
                       required
                       type="password"
@@ -408,7 +408,7 @@ export default function SettingsPage({
                     />
                   </Field>
                   <div className="grid gap-5 md:grid-cols-2">
-                    <Field label="New Password">
+                    <Field label={t("security.newPassword")}>
                       <input
                         required
                         minLength={8}
@@ -418,7 +418,7 @@ export default function SettingsPage({
                         onChange={(e) => setNext(e.target.value)}
                       />
                     </Field>
-                    <Field label="Confirm Password">
+                    <Field label={t("security.confirmPassword")}>
                       <input
                         required
                         minLength={8}
@@ -450,13 +450,13 @@ export default function SettingsPage({
               onClick={discard}
               className="px-5 font-bold text-slate-600"
             >
-              Discard
+              {t("common:button.discard")}
             </button>
             <button
               disabled={saving}
               className="h-11 rounded-xl bg-indigo-600 px-7 font-bold text-white disabled:bg-slate-300"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? t("common:button.saving") : t("common:button.saveChanges")}
             </button>
           </footer>
         </form>

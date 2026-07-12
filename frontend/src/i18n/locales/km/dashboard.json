@@ -1,1 +1,16 @@
-{"title":"ទិដ្ឋភាពទូទៅ","welcome":"សូមស្វាគមន៍! នេះជាព័ត៌មានថ្ងៃនេះ។","totalEmployees":"បុគ្គលិកសរុប","presentToday":"វត្តមានថ្ងៃនេះ","onLeave":"កំពុងឈប់សម្រាក","pendingRequests":"សំណើកំពុងរង់ចាំ","attendanceTrends":"និន្នាការវត្តមាន","departmentDistribution":"ការបែងចែកនាយកដ្ឋាន","quickActions":"សកម្មភាពរហ័ស","noTrend":"មិនទាន់មានទិន្នន័យនិន្នាការវត្តមាន។"}
+{
+  "title": "ទិដ្ឋភាពទូទៅនៃផ្ទាំងគ្រប់គ្រង",
+  "welcome": "សូមស្វាគមន៍មកវិញ! នេះជាស្ថានភាពសម្រាប់ថ្ងៃនេះ។",
+  "totalEmployees": "បុគ្គលិកសរុប",
+  "presentToday": "វត្តមានថ្ងៃនេះ",
+  "onLeave": "កំពុងឈប់សម្រាក",
+  "pendingRequests": "សំណើកំពុងរង់ចាំ",
+  "attendanceTrends": "និន្នាការវត្តមាន",
+  "departmentDistribution": "ការបែងចែកតាមនាយកដ្ឋាន",
+  "quickActions": "សកម្មភាពរហ័ស",
+  "noTrend": "មិនទាន់មានទិន្នន័យនិន្នាការវត្តមានទេ។",
+  "noDepartmentData": "មិនទាន់មានទិន្នន័យនាយកដ្ឋានទេ។",
+  "comparison": {"lastMonth":"ធៀបនឹងខែមុន","yesterday":"ធៀបនឹងម្សិលមិញ","lastWeek":"ធៀបនឹងសប្តាហ៍មុន","newToday":"ថ្មីថ្ងៃនេះ"},
+  "chart": {"present":"វត្តមាន","absent":"អវត្តមាន","onLeave":"ឈប់សម្រាក"},
+  "actions": {"addEmployee":"បន្ថែមបុគ្គលិក","markAttendance":"កត់ត្រាវត្តមាន","approveLeaves":"អនុម័តការឈប់សម្រាក","events":"ព្រឹត្តិការណ៍ និងកាលវិភាគ","viewCalendar":"មើលប្រតិទិន"}
+}

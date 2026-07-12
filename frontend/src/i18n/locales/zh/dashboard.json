@@ -1,1 +1,16 @@
-{"title":"仪表板概览","welcome":"欢迎回来！这是今天的情况。","totalEmployees":"员工总数","presentToday":"今日出勤","onLeave":"休假中","pendingRequests":"待处理申请","attendanceTrends":"考勤趋势","departmentDistribution":"部门分布","quickActions":"快捷操作","noTrend":"暂无考勤趋势数据。"}
+{
+  "title": "仪表板概览",
+  "welcome": "欢迎回来！这是今天的最新情况。",
+  "totalEmployees": "员工总数",
+  "presentToday": "今日出勤",
+  "onLeave": "休假中",
+  "pendingRequests": "待处理申请",
+  "attendanceTrends": "考勤趋势",
+  "departmentDistribution": "部门分布",
+  "quickActions": "快捷操作",
+  "noTrend": "暂无考勤趋势数据。",
+  "noDepartmentData": "暂无部门数据。",
+  "comparison": {"lastMonth":"与上月相比","yesterday":"与昨天相比","lastWeek":"与上周相比","newToday":"今日新增"},
+  "chart": {"present":"出勤","absent":"缺勤","onLeave":"休假"},
+  "actions": {"addEmployee":"添加员工","markAttendance":"记录考勤","approveLeaves":"审批休假","events":"活动与日程","viewCalendar":"查看日历"}
+}

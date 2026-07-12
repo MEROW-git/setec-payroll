@@ -1,1 +1,9 @@
-{"title":"设置","subtitle":"管理账户偏好和应用设置。","tabs":{"profile":"用户资料","appearance":"外观","notifications":"通知","security":"安全"},"appearance":{"title":"外观设置","theme":"主题偏好","light":"浅色","dark":"深色","system":"跟随系统","density":"界面密度","comfortable":"舒适","compact":"紧凑"},"language":{"label":"语言","title":"语言偏好","description":"选择应用程序使用的语言。"}}
+{
+  "title":"设置","subtitle":"管理您的账户偏好和应用程序设置。",
+  "tabs":{"profile":"用户资料","appearance":"外观","notifications":"通知","security":"安全"},
+  "profile":{"fullName":"姓名","email":"电子邮箱","phone":"电话号码","jobTitle":"职位"},
+  "appearance":{"title":"外观设置","theme":"主题偏好","light":"浅色","dark":"深色","system":"跟随系统","density":"界面密度","comfortable":"舒适","comfortableDescription":"间距更大，阅读更轻松","compact":"紧凑","compactDescription":"在屏幕上显示更多数据"},
+  "language":{"label":"语言","title":"语言偏好","description":"选择整个应用程序使用的语言。"},
+  "notifications":{"title":"通知偏好","email":"邮件通知","emailDescription":"通过电子邮件接收重要提醒。","push":"推送通知","pushDescription":"在浏览器中接收实时更新。","leave":"休假申请","leaveDescription":"当休假申请需要处理时通知您。","payroll":"薪资提醒","payrollDescription":"薪资处理完成时通知您。"},
+  "security":{"title":"安全设置","currentPassword":"当前密码","newPassword":"新密码","confirmPassword":"确认密码"}
+}
